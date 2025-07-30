@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Travel Assistant</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Custom Tailwind configuration for Inter font */
+        @tailwind base;
+        @tailwind components;
+        @tailwind utilities;
+
+        html, body {
+            height: 100%;
+            margin: 0;
+            overflow-x: hidden; /* Prevent horizontal scroll */
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        /* Custom spinner animation */
+        .spinner {
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top: 4px solid #fff;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Ensure full screen for mobile */
+        #loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 100; /* Ensure it's on top */
+        }
+
+        #recommendations-list {
+            min-height: 100vh; /* Ensure it takes full height when visible */
+        }
+    </style>
+    <script>
+        // Configure Tailwind to use the Inter font
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        inter: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="font-inter">
+
+    <div id="loading-screen" class="min-h-screen w-full flex flex-col items-center justify-center bg-slate-900 transition-opacity duration-500 ease-in-out">
+        <div class="spinner"></div>
+        <p class="text-white text-lg font-medium mt-4">Generating recommendations...</p>
+    </div>
+
+    <div id="recommendations-list" class="hidden min-h-screen bg-gray-50 pb-8 transition-opacity duration-500 ease-in-out opacity-0">
+        <header class="sticky top-0 bg-white shadow-sm py-4 px-4 z-50">
+            <h1 class="text-center text-xl sm:text-2xl font-bold text-gray-800">Your AI Restaurant Recommendations for Kyoto</h1>
+        </header>
+        <main class="p-4 space-y-4 max-w-md mx-auto">
+            </main>
+    </div>
+
+    <script>
+        // Get references to the loading screen and recommendations list elements
+        const loadingScreen = document.getElementById('loading-screen');
+        const recommendationsList = document.getElementById('recommendations-list');
+        const mainContent = recommendationsList.querySelector('main');
+
+        // Function to generate SVG for star ratings
+        function getStarRatingSvg(rating) {
+            let svg = '';
+            const fullStar = `<svg class="w-4 h-4 text-yellow-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.538 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.783.57-1.838-.197-1.538-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.462a1 1 0 00.95-.69l1.07-3.292z"></path></svg>`;
+            const halfStar = `<svg class="w-4 h-4 text-yellow-400" fill="currentColor" viewBox="0 0 20 20"><defs><linearGradient id="halfGradient"><stop offset="50%" stop-color="currentColor" /><stop offset="50%" stop-color="transparent" /></linearGradient></defs><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.538 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.783.57-1.838-.197-1.538-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.462a1 1 0 00.95-.69l1.07-3.292z" fill="url(#halfGradient)"></path></svg>`;
+            const emptyStar = `<svg class="w-4 h-4 text-gray-300" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.538 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.783.57-1.838-.197-1.538-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.462a1 1 0 00.95-.69l1.07-3.292zM10 15.27l-3.245 1.71 0.618-3.61L4.38 9.72l3.61-.52L10 6.02l1.99 3.18 3.61.52-2.003 1.95 0.618 3.61L10 15.27z"></path></svg>`;
+
+            const fullStars = Math.floor(rating);
+            const hasHalfStar = rating % 1 >= 0.25 && rating % 1 < 0.75; // Consider a half star if decimal is between .25 and .75
+            const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
+
+            for (let i = 0; i < fullStars; i++) {
+                svg += fullStar;
+            }
+            if (hasHalfStar) {
+                svg += halfStar;
+            }
+            for (let i = 0; i < emptyStars; i++) {
+                svg += emptyStar;
+            }
+            return svg;
+        }
+
+        // Fictional restaurant data for Kyoto
+        const restaurants = [
+            {
+                name: "Gion Izakaya",
+                cuisine: "Izakaya",
+                rating: 4.7,
+                description: "A lively spot in Gion offering traditional small plates and a wide selection of sake."
+            },
+            {
+                name: "Kaze Arashiyama",
+                cuisine: "Kaiseki",
+                rating: 4.9,
+                description: "Authentic multi-course dining with serene garden views near the Arashiyama Bamboo Grove."
+            },
+            {
+                name: "Fushimi Sake House",
+                cuisine: "Japanese Pub",
+                rating: 4.5,
+                description: "Experience local sake pairings with delicious Kyoto-style pub food in Fushimi Inari."
+            },
+            {
+                name: "Kyoto Ramen Koji",
+                cuisine: "Ramen",
+                rating: 4.2,
+                description: "A bustling ramen shop known for its rich tonkotsu broth and handmade noodles."
+            },
+            {
+                name: "Nishiki Sushi Bar",
+                cuisine: "Sushi",
+                rating: 4.8,
+                description: "Fresh, expertly prepared sushi and sashimi sourced daily from local markets."
+            },
+            {
+                name: "Tempura Endo",
+                cuisine: "Tempura",
+                rating: 4.6,
+                description: "Exquisite tempura crafted with seasonal ingredients in a refined setting."
+            },
+            {
+                name: "Pontocho Yakitori",
+                cuisine: "Yakitori",
+                rating: 4.3,
+                description: "Charcoal-grilled skewers and a vibrant atmosphere along the Pontocho alley."
+            },
+            {
+                name: "Kiyomizu Soba",
+                cuisine: "Soba",
+                rating: 4.1,
+                description: "Hand-cut soba noodles served hot or cold, perfect after visiting Kiyomizu-dera."
+            },
+            {
+                name: "Arashiyama Tofu Cuisine",
+                cuisine: "Tofu",
+                rating: 4.7,
+                description: "Delicate and flavorful tofu dishes, a specialty of the Arashiyama area."
+            },
+            {
+                name: "Higashiyama Matcha Cafe",
+                cuisine: "Cafe/Sweets",
+                rating: 4.4,
+                description: "A cozy cafe offering traditional matcha tea and wagashi (Japanese sweets)."
+            },
+            {
+                name: "Kamo River Grill",
+                cuisine: "Teppanyaki",
+                rating: 4.6,
+                description: "Premium wagyu beef and seafood grilled to perfection with scenic river views."
+            },
+            {
+                name: "Shijo Udon House",
+                cuisine: "Udon",
+                rating: 4.0,
+                description: "Hearty udon noodle bowls with various toppings, a comforting local favorite."
+            },
+            {
+                name: "Philosopher's Path Cafe",
+                cuisine: "Cafe",
+                rating: 4.2,
+                description: "Relaxing cafe along the Philosopher's Path, ideal for a coffee break."
+            },
+            {
+                name: "Kyoto Katsu Curry",
+                cuisine: "Curry",
+                rating: 3.9,
+                description: "Crispy pork cutlet served with rich Japanese curry and rice."
+            },
+            {
+                name: "Inari Sushi & Grill",
+                cuisine: "Sushi/Grill",
+                rating: 4.5,
+                description: "A versatile restaurant offering both fresh sushi and grilled Japanese dishes."
+            },
+            {
+                name: "Bamboo Forest Bistro",
+                cuisine: "Fusion",
+                rating: 4.3,
+                description: "Modern Japanese fusion cuisine with a creative twist, near Arashiyama."
+            },
+            {
+                name: "Golden Pavilion Tea House",
+                cuisine: "Tea House",
+                rating: 4.8,
+                description: "Traditional tea ceremony experience with exquisite sweets overlooking a serene pond."
+            },
+            {
+                name: "Kyoto Station Bento",
+                cuisine: "Bento",
+                rating: 4.0,
+                description: "Convenient and delicious bento boxes perfect for travelers on the go."
+            },
+            {
+                name: "Sannenzaka Sweets",
+                cuisine: "Desserts",
+                rating: 4.6,
+                description: "A charming shop specializing in traditional Kyoto sweets and pastries."
+            },
+            {
+                name: "Arashiyama Bamboo Cafe",
+                cuisine: "Cafe",
+                rating: 4.1,
+                description: "A tranquil cafe nestled within the bamboo forest, offering light meals and drinks."
+            },
+            {
+                name: "Kiyomizu Dango Stand",
+                cuisine: "Street Food",
+                rating: 4.4,
+                description: "Freshly grilled dango skewers with various sweet and savory toppings."
+            },
+            {
+                name: "Gion Kaiseki House",
+                cuisine: "Kaiseki",
+                rating: 4.9,
+                description: "An exclusive kaiseki experience showcasing the pinnacle of Kyoto's culinary artistry."
+            },
+            {
+                name: "Kyoto Tower Sky Dining",
+                cuisine: "International",
+                rating: 4.2,
+                description: "Enjoy panoramic views of Kyoto while dining on international cuisine."
+            },
+            {
+                name: "Philosopher's Path Ramen",
+                cuisine: "Ramen",
+                rating: 4.0,
+                description: "A cozy ramen spot popular with locals and tourists alike, known for its rich broth."
+            }
+        ];
+
+        // Function to create a restaurant card HTML string
+        function createRestaurantCard(restaurant) {
+            return `
+                <div class="bg-white rounded-lg p-4 shadow-md">
+                    <h2 class="font-semibold text-lg text-gray-900">${restaurant.name}</h2>
+                    <p class="text-gray-600 text-sm mb-2">${restaurant.cuisine}</p>
+                    <div class="flex items-center mb-2">
+                        <div class="flex">
+                            ${getStarRatingSvg(restaurant.rating)}
+                        </div>
+                        <span class="ml-2 text-gray-700 text-sm">${restaurant.rating.toFixed(1)}</span>
+                    </div>
+                    <p class="text-gray-800 text-sm">${restaurant.description}</p>
+                </div>
+            `;
+        }
+
+        // Populate the recommendations list
+        restaurants.forEach(restaurant => {
+            mainContent.innerHTML += createRestaurantCard(restaurant);
+        });
+
+        // Set a timeout for 8 seconds to hide the loading screen and show the recommendations
+        setTimeout(() => {
+            // Add opacity-0 and hidden to loading screen for smooth fade-out
+            loadingScreen.classList.add('opacity-0');
+            // After fade-out, truly hide it
+            setTimeout(() => {
+                loadingScreen.classList.add('hidden');
+                // Remove hidden and add opacity-100 to recommendations list for smooth fade-in
+                recommendationsList.classList.remove('hidden');
+                // Trigger reflow to ensure transition works
+                void recommendationsList.offsetWidth;
+                recommendationsList.classList.remove('opacity-0');
+            }, 500); // This duration should match the transition-opacity duration
+        }, 8000); // 8000 milliseconds = 8 seconds
+    </script>
+</body>
+</html>
