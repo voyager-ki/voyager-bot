@@ -111,12 +111,10 @@
     <!-- Div for the fading background -->
     <div id="background-gradient" class="fixed inset-0 -z-10 opacity-0 transition-opacity duration-1000"></div>
 
-    <div id="chat-container">
+    <div id="chat-container" class="max-w-4xl mx-auto w-full">
         <!-- Chat Header -->
         <header id="chat-header" class="glass-effect p-4 shadow-sm opacity-0 transition-opacity duration-500">
-            <div class="max-w-4xl mx-auto">
-                <h1 class="font-playfair text-2xl font-bold text-slate-900">Voyager AI</h1>
-            </div>
+            <h1 class="font-playfair text-2xl font-bold text-slate-900">Voyager AI</h1>
         </header>
 
         <!-- Chat Messages Area -->
@@ -126,7 +124,7 @@
 
         <!-- Chat Input Area -->
         <footer id="chat-footer" class="glass-effect p-4 opacity-0 transition-opacity duration-500">
-            <div id="chat-input-container" class="relative w-full max-w-4xl mx-auto">
+            <div id="chat-input-container" class="relative w-full">
                 <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4">
                     <svg class="h-5 w-5 text-gray-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                         <path fill-rule="evenodd" d="M9 3.5a5.5 5.5 0 100 11 5.5 5.5 0 000-11zM2 9a7 7 0 1112.452 4.391l3.328 3.329a.75.75 0 11-1.06 1.06l-3.329-3.328A7 7 0 012 9z" clip-rule="evenodd" />
