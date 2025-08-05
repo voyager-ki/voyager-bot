@@ -60,6 +60,16 @@
             backdrop-filter: blur(10px);
             -webkit-backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
+        }
+        .restaurant-item.glass-effect:hover {
+            background-color: rgba(255, 255, 255, 0.8);
+        }
+        .glass-effect-ai-bubble {
+            background-color: rgba(229, 231, 235, 0.7); /* Light gray base for AI bubbles */
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
         }
         .glass-effect-dark {
              background-color: rgba(17, 24, 39, 0.8);
@@ -97,10 +107,16 @@
 <body class="antialiased">
     
     <div class="p-0 md:p-8 flex items-center justify-center min-h-screen">
-        <div id="chat-container" class="relative flex flex-col w-full max-w-4xl h-screen md:h-[95vh] md:max-h-[1000px] md:rounded-2xl md:shadow-2xl md:overflow-hidden bg-gray-100">
+        <div id="chat-container" class="relative flex flex-col w-full max-w-4xl md:h-[95vh] md:max-h-[1000px] md:rounded-2xl md:shadow-2xl md:overflow-hidden bg-gray-100">
             <!-- Chat Header -->
             <header id="chat-header" class="glass-effect p-4 shadow-sm opacity-0 transition-opacity duration-500 flex-shrink-0">
-                <h1 class="font-playfair text-2xl font-bold text-slate-900">Voyager AI</h1>
+                <div class="flex items-center">
+                    <svg class="h-8 w-8 text-slate-800 mr-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M12 21a9 9 0 100-18 9 9 0 000 18z" />
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 8.25L12 15.75l-3.75-7.5L12 3l3.75 5.25z" />
+                    </svg>
+                    <h1 class="font-playfair text-2xl font-bold text-slate-900">Voyager AI</h1>
+                </div>
             </header>
 
             <!-- Chat Messages Area -->
@@ -133,6 +149,7 @@
 
     <script>
         // --- DOM Element References ---
+        const chatContainer = document.getElementById('chat-container');
         const chatHeader = document.getElementById('chat-header');
         const chatFooter = document.getElementById('chat-footer');
         const chatMessages = document.getElementById('chat-messages');
@@ -209,7 +226,7 @@
                       <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 8.25L12 15.75l-3.75-7.5L12 3l3.75 5.25z" />
                     </svg>
                 </div>
-                <div class="glass-effect rounded-lg p-4 max-w-lg">
+                <div class="glass-effect-ai-bubble rounded-lg p-4 max-w-lg">
                     <p class="text-gray-900">Hello! I'm Voyager AI. How can I help you plan your trip today?</p>
                 </div>
             `;
@@ -232,7 +249,7 @@
                     </svg>
                 </div>
                 <div>
-                    <div class="glass-effect rounded-lg p-4 inline-block">
+                    <div class="glass-effect-ai-bubble rounded-lg p-4 inline-block">
                         <div class="flex items-center justify-center space-x-1">
                             <span class="h-2 w-2 bg-gray-600 rounded-full blinking-cursor" style="animation-delay: 0s;"></span>
                             <span class="h-2 w-2 bg-gray-600 rounded-full blinking-cursor" style="animation-delay: 0.2s;"></span>
@@ -257,7 +274,7 @@
             let listHtml = '';
             restaurantData.forEach(resto => {
                 listHtml += `
-                    <div class="restaurant-item glass-effect rounded-lg p-4 cursor-pointer hover:bg-white/70" data-id="${resto.id}">
+                    <div class="restaurant-item glass-effect rounded-lg p-4 cursor-pointer shadow-sm" data-id="${resto.id}">
                         <h3 class="text-lg font-semibold text-gray-900">${resto.name}</h3>
                         <p class="text-sm font-medium text-gray-800 mt-1">${resto.cuisine}</p>
                         <div class="flex items-center mt-3">
@@ -276,7 +293,7 @@
                       <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 8.25L12 15.75l-3.75-7.5L12 3l3.75 5.25z" />
                     </svg>
                 </div>
-                <div class="glass-effect rounded-lg p-4 space-y-4 w-full max-w-4xl">
+                <div class="glass-effect-ai-bubble rounded-lg p-4 space-y-4 w-full max-w-4xl">
                     <p class="text-gray-900">Of course! Here are some restaurant recommendations for Kyoto.</p>
                     <div class="md:grid md:grid-cols-2 md:gap-4">
                         <div class="relative list-fade-container">
@@ -382,13 +399,14 @@
          * Main application logic to handle the chat flow.
          */
         function handleSend() {
-            const message = chatInput.value.trim();
-            if (!message) return;
+            const message = chatInput.value;
+            if (!message || message === '...') return;
 
             addUserMessage(message);
 
             chatInput.disabled = true;
             sendButton.disabled = true;
+            chatInput.value = '...';
             
             setTimeout(() => {
                 const typingIndicator = showTypingIndicator();
