@@ -107,7 +107,7 @@
 <body class="antialiased">
     
     <div class="p-0 md:p-8 flex items-center justify-center min-h-screen">
-        <div id="chat-container" class="relative flex flex-col w-full max-w-4xl md:h-[95vh] md:max-h-[1000px] md:rounded-2xl md:shadow-2xl md:overflow-hidden bg-gray-100">
+        <div id="chat-container" class="relative flex flex-col w-full max-w-4xl h-screen md:h-[95vh] md:max-h-[1000px] md:rounded-2xl md:shadow-2xl md:overflow-hidden bg-gray-100">
             <!-- Chat Header -->
             <header id="chat-header" class="glass-effect p-4 shadow-sm opacity-0 transition-opacity duration-500 flex-shrink-0">
                 <div class="flex items-center">
@@ -420,6 +420,14 @@
 
         // --- Initial Load Animation ---
         document.addEventListener('DOMContentLoaded', () => {
+             // --- Mobile Viewport Height Fix ---
+            function setChatContainerHeight() {
+                const isMobile = window.innerWidth < 768;
+                chatContainer.style.height = isMobile ? `${window.innerHeight}px` : '';
+            }
+            window.addEventListener('resize', setChatContainerHeight);
+            setChatContainerHeight();
+
             // Fade in the main UI elements
             setTimeout(() => {
                 chatHeader.classList.remove('opacity-0');
