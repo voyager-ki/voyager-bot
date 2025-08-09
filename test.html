@@ -119,6 +119,12 @@
         .expanded .expand-icon {
             transform: rotate(180deg);
         }
+        
+        /* --- Card Highlighting --- */
+        .highlighted-card {
+            box-shadow: 0 0 0 2px black !important;
+            transition: box-shadow 0.3s ease-in-out;
+        }
     </style>
 </head>
 <body class="antialiased">
@@ -347,7 +353,7 @@
                             <div id="map-mobile" class="h-[160px] rounded-lg"></div>
                         </div>
                         <div class="relative">
-                            <div class="overflow-y-auto h-[400px] md:h-[500px] pr-2 space-y-3 md:space-y-4">${listHtml}</div>
+                            <div id="restaurant-list-container" class="overflow-y-auto h-[400px] md:h-[500px] pr-2 space-y-3 md:space-y-4">${listHtml}</div>
                         </div>
                         <div class="hidden md:block" id="map-desktop"></div>
                     </div>
@@ -400,6 +406,19 @@
                     .bindPopup(`<b>${resto.name}</b><br>${resto.cuisine}`);
                 markers[resto.id] = marker;
                 markerGroup.push(marker);
+
+                marker.on('click', () => {
+                    const card = document.querySelector(`.restaurant-item[data-id="${resto.id}"]`);
+                    if (card) {
+                        card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        
+                        setTimeout(() => {
+                            if (!card.classList.contains('expanded')) {
+                                card.click();
+                            }
+                        }, 500);
+                    }
+                });
             });
             
             const group = new L.featureGroup(markerGroup);
@@ -426,6 +445,11 @@
                     const details = item.querySelector('.restaurant-details');
                     const isExpanded = item.classList.contains('expanded');
 
+                    // Store the current scroll position
+                    const listContainer = document.getElementById('restaurant-list-container');
+                    const scrollPosition = listContainer.scrollTop;
+                    const itemTop = item.offsetTop;
+
                     // Close any other open cards
                     document.querySelectorAll('.restaurant-item.expanded').forEach(openItem => {
                         if (openItem !== item) {
@@ -441,6 +465,19 @@
                     } else {
                         item.classList.add('expanded');
                         details.style.maxHeight = details.scrollHeight + 'px';
+                        
+                        // After expanding, check if the top of the card has moved up.
+                        // If so, restore the scroll position to keep it in place.
+                        if (item.offsetTop < itemTop) {
+                            listContainer.scrollTop = scrollPosition;
+                        }
+
+                        // Check if the expanded content is out of view
+                        const listRect = listContainer.getBoundingClientRect();
+                        const itemRect = item.getBoundingClientRect();
+                        if (itemRect.bottom > listRect.bottom) {
+                            listContainer.scrollBy({ top: itemRect.bottom - listRect.bottom + 16, behavior: 'smooth' });
+                        }
                     }
                     
                     if (marker) {
