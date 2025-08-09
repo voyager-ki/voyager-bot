@@ -52,6 +52,15 @@
             animation: blink 1s step-start infinite;
         }
 
+        /* Pulsation animation for the send button */
+        @keyframes pulsate {
+            0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.4); }
+            50% { transform: scale(1.1); box-shadow: 0 0 0 10px rgba(0, 0, 0, 0); }
+        }
+        .pulsate {
+            animation: pulsate 1.5s infinite;
+        }
+
         /* Style for the map container */
         #map {
             height: 500px;
@@ -157,6 +166,10 @@
                     </div>
                     <input id="chat-input" type="text" value="Recommendations for restaurants in Kyoto" class="block w-full rounded-full border-0 bg-white/75 py-2.5 md:py-3.5 pl-9 md:pl-11 pr-12 md:pr-16 text-sm text-gray-900 ring-1 ring-inset ring-gray-900/10 placeholder:text-gray-600 focus:ring-2 focus:ring-inset focus:ring-black sm:text-sm sm:leading-6" disabled>
                     <div class="absolute inset-y-0 right-0 flex items-center pr-1.5">
+                        <div id="click-me-bubble" class="absolute bottom-full right-1/2 translate-x-1/2 mb-2 p-2 bg-gray-800 text-white text-xs rounded-lg shadow-lg opacity-0 transition-opacity duration-300 pointer-events-none whitespace-nowrap">
+                            Click me!
+                            <div class="absolute left-1/2 -translate-x-1/2 bottom-[-8px] w-0 h-0 border-l-8 border-l-transparent border-r-8 border-r-transparent border-t-8 border-t-gray-800"></div>
+                        </div>
                         <button id="send-button" type="button" class="inline-flex items-center justify-center rounded-full bg-black h-8 w-8 md:h-9 md:w-9 text-sm font-semibold text-white shadow-sm hover:bg-gray-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-black transition-colors duration-300">
                             <span class="sr-only">Send</span>
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 md:h-5 md:w-5" viewBox="0 0 20 20" fill="currentColor">
@@ -177,6 +190,7 @@
         const chatMessages = document.getElementById('chat-messages');
         const chatInput = document.getElementById('chat-input');
         const sendButton = document.getElementById('send-button');
+        const clickMeBubble = document.getElementById('click-me-bubble');
 
         // --- Fictional Data with Coordinates Clustered in Downtown Kyoto ---
         const restaurantData = [
@@ -416,7 +430,7 @@
                             if (!card.classList.contains('expanded')) {
                                 card.click();
                             }
-                        }, 500);
+                        }, 300);
                     }
                 });
             });
@@ -512,6 +526,9 @@
         function handleSend() {
             const message = chatInput.value;
             if (!message || message === '...') return;
+            
+            const clickMeBubble = document.getElementById('click-me-bubble');
+            clickMeBubble.classList.add('opacity-0');
 
             addUserMessage(message);
 
@@ -550,9 +567,19 @@
                 addInitialAiMessage();
             }, 600);
 
-            sendButton.addEventListener('click', handleSend);
+            // Show "Click me!" bubble after 5 seconds of inactivity
+            const inactivityTimer = setTimeout(() => {
+                clickMeBubble.classList.remove('opacity-0');
+            }, 5000);
+
+            sendButton.addEventListener('click', () => {
+                clearTimeout(inactivityTimer);
+                handleSend();
+            });
+
             chatInput.addEventListener('keypress', (e) => {
                 if (e.key === 'Enter') {
+                    clearTimeout(inactivityTimer);
                     handleSend();
                 }
             });
