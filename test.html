@@ -194,31 +194,47 @@
 
         // --- Fictional Data with Coordinates Clustered in Downtown Singapore ---
         const restaurantData = [
+            // Marina Bay / Downtown Core
             { id: 0, name: "Marina Bay Hawker Stall", cuisine: "Hawker", rating: 4.8, description: "Classic street food with a stunning waterfront view.", lat: 1.283, lng: 103.860, details: { special: "Chilli Crab", ambiance: "Bustling & Scenic", goodFor: "Tourists & Locals" } },
-            { id: 1, name: "Sentosa Seafood Grill", cuisine: "Seafood", rating: 4.7, description: "Freshly grilled seafood on the sandy shores of Sentosa.", lat: 1.255, lng: 103.819, details: { special: "Grilled Stingray", ambiance: "Beachfront & Casual", goodFor: "Families" } },
-            { id: 2, name: "Orchard Road Peranakan", cuisine: "Peranakan", rating: 4.6, description: "Authentic Straits Chinese cuisine in a modern setting.", lat: 1.304, lng: 103.831, details: { special: "Ayam Buah Keluak", ambiance: "Elegant & Modern", goodFor: "Cultural Dining" } },
-            { id: 3, name: "Clarke Quay Chili Crab", cuisine: "Seafood", rating: 4.9, description: "Famous for its award-winning chili crab.", lat: 1.290, lng: 103.846, details: { special: "Chilli Crab", ambiance: "Riverside & Lively", goodFor: "Groups" } },
-            { id: 4, name: "Tiong Bahru Mod-Sin", cuisine: "Modern Singaporean", rating: 4.5, description: "Innovative dishes that reinvent local flavors.", lat: 1.282, lng: 103.827, details: { special: "Laksa Risotto", ambiance: "Hip & Trendy", goodFor: "Foodies" } },
-            { id: 5, name: "Joo Chiat Laksa House", cuisine: "Local Delights", rating: 4.8, description: "A legendary spot for Katong-style laksa.", lat: 1.305, lng: 103.905, details: { special: "Katong Laksa", ambiance: "Old School & Authentic", goodFor: "Laksa Lovers" } },
-            { id: 6, name: "Dempsey Hill Black Pepper Crab", cuisine: "Seafood", rating: 4.7, description: "A lush green escape with famous black pepper crab.", lat: 1.308, lng: 103.808, details: { special: "Black Pepper Crab", ambiance: "Lush & Colonial", goodFor: "Special Occasions" } },
-            { id: 7, name: "Maxwell Food Centre Chicken Rice", cuisine: "Hawker", rating: 4.9, description: "Arguably the best Hainanese chicken rice in Singapore.", lat: 1.280, lng: 103.844, details: { special: "Hainanese Chicken Rice", ambiance: "Bustling Hawker Centre", goodFor: "Authentic Street Food" } },
-            { id: 8, name: "Little India Biryani", cuisine: "Indian", rating: 4.6, description: "Aromatic and flavorful biryani in the heart of Little India.", lat: 1.312, lng: 103.855, details: { special: "Hyderabadi Dum Biryani", ambiance: "Vibrant & Cultural", goodFor: "Authentic Indian" } },
-            { id: 9, name: "Chinatown Satay Skewers", cuisine: "Hawker", rating: 4.5, description: "Perfectly grilled satay with a rich peanut sauce.", lat: 1.282, lng: 103.844, details: { special: "Mixed Satay Platter", ambiance: "Lively Street Food", goodFor: "Late Night Snacks" } },
-            { id: 10, name: "East Coast Lagoon Food Village", cuisine: "Hawker", rating: 4.7, description: "Seaside hawker centre famous for BBQ seafood.", lat: 1.305, lng: 103.920, details: { special: "BBQ Stingray & Satay", ambiance: "Seaside & Casual", goodFor: "Local Experience" } },
-            { id: 11, name: "Holland Village Fusion Bistro", cuisine: "Fusion", rating: 4.4, description: "A trendy spot with a mix of Western and Asian flavors.", lat: 1.311, lng: 103.795, details: { special: "Chilli Crab Pasta", ambiance: "Bohemian & Relaxed", goodFor: "Brunch & Drinks" } },
-            { id: 12, name: "Gardens by the Bay Dining", cuisine: "International", rating: 4.6, description: "Dine amidst the spectacular Supertree Grove.", lat: 1.281, lng: 103.863, details: { special: "Pan-Seared Scallops", ambiance: "Futuristic & Scenic", goodFor: "Unique Views" } },
-            { id: 13, name: "The Fullerton Bay Restaurant", cuisine: "Fine Dining", rating: 5.0, description: "Exquisite dining with panoramic views of Marina Bay.", lat: 1.284, lng: 103.854, details: { special: "Lobster Thermidor", ambiance: "Luxurious & Romantic", goodFor: "Anniversaries" } },
-            { id: 14, name: "Katong Antique House", cuisine: "Peranakan", rating: 4.7, description: "Authentic Peranakan food in a beautifully preserved shophouse.", lat: 1.306, lng: 103.905, details: { special: "Babi Pongteh", ambiance: "Historic & Charming", goodFor: "Cultural Immersion" } },
-            { id: 15, name: "Bugis Street Bites", cuisine: "Street Food", rating: 4.3, description: "A bustling market with a huge variety of cheap and delicious snacks.", lat: 1.300, lng: 103.855, details: { special: "Fried Carrot Cake", ambiance: "Bustling & Energetic", goodFor: "Shopping Break" } },
-            { id: 16, name: "Newton Food Centre", cuisine: "Hawker", rating: 4.5, description: "Featured in 'Crazy Rich Asians', famous for its seafood.", lat: 1.312, lng: 103.838, details: { special: "Oyster Omelette", ambiance: "Famous & Lively", goodFor: "Seafood Lovers" } },
-            { id: 17, name: "Geylang Serai Market", cuisine: "Malay", rating: 4.6, description: "A hub for traditional Malay and Indonesian cuisine.", lat: 1.314, lng: 103.909, details: { special: "Beef Rendang", ambiance: "Cultural & Authentic", goodFor: "Malay Food" } },
-            { id: 18, name: "Raffles Hotel Long Bar", cuisine: "Bar & Grill", rating: 4.8, description: "Home of the iconic Singapore Sling cocktail.", lat: 1.294, lng: 103.854, details: { special: "Singapore Sling", ambiance: "Colonial & Historic", goodFor: "Classic Cocktails" } },
+            { id: 12, name: "Gardens by the Bay Dining", cuisine: "International", rating: 4.6, description: "Dine amidst the spectacular Supertree Grove.", lat: 1.281, lng: 103.865, details: { special: "Pan-Seared Scallops", ambiance: "Futuristic & Scenic", goodFor: "Unique Views" } },
+            { id: 13, name: "The Fullerton Bay Restaurant", cuisine: "Fine Dining", rating: 5.0, description: "Exquisite dining with panoramic views of Marina Bay.", lat: 1.285, lng: 103.854, details: { special: "Lobster Thermidor", ambiance: "Luxurious & Romantic", goodFor: "Anniversaries" } },
+            { id: 20, name: "Lau Pa Sat", cuisine: "Hawker", rating: 4.7, description: "Historic food centre in the heart of the financial district.", lat: 1.279, lng: 103.850, details: { special: "Satay Street (at night)", ambiance: "Historic & Bustling", goodFor: "Variety" } },
+
+            // Riverside (Clarke Quay / Boat Quay)
+            { id: 3, name: "Clarke Quay Chili Crab", cuisine: "Seafood", rating: 4.9, description: "Famous for its award-winning chili crab.", lat: 1.291, lng: 103.846, details: { special: "Chilli Crab", ambiance: "Riverside & Lively", goodFor: "Groups" } },
             { id: 19, name: "Esplanade Rooftop Bar", cuisine: "Bar", rating: 4.6, description: "Stunning views of the city skyline and Marina Bay Sands.", lat: 1.289, lng: 103.855, details: { special: "Craft Cocktails", ambiance: "Rooftop & Scenic", goodFor: "Evening Drinks" } },
-            { id: 20, name: "Lau Pa Sat", cuisine: "Hawker", rating: 4.7, description: "Historic food centre in the heart of the financial district.", lat: 1.280, lng: 103.850, details: { special: "Satay Street (at night)", ambiance: "Historic & Bustling", goodFor: "Variety" } },
-            { id: 21, name: "Tekka Centre", cuisine: "Indian", rating: 4.4, description: "Vibrant market with authentic and affordable Indian food.", lat: 1.307, lng: 103.850, details: { special: "Thosai & Biryani", ambiance: "Vibrant & No-frills", goodFor: "Budget Indian Food" } },
+            { id: 23, name: "Zion Riverside Food Centre", cuisine: "Hawker", rating: 4.6, description: "Popular for its prawn noodles and char kway teow.", lat: 1.295, lng: 103.832, details: { special: "Prawn Noodles", ambiance: "Riverside & Casual", goodFor: "Local Favorites" } },
+
+            // Orchard Road Area
+            { id: 2, name: "Orchard Road Peranakan", cuisine: "Peranakan", rating: 4.6, description: "Authentic Straits Chinese cuisine in a modern setting.", lat: 1.304, lng: 103.831, details: { special: "Ayam Buah Keluak", ambiance: "Elegant & Modern", goodFor: "Cultural Dining" } },
+            { id: 11, name: "Holland Village Fusion Bistro", cuisine: "Fusion", rating: 4.4, description: "A trendy spot with a mix of Western and Asian flavors.", lat: 1.311, lng: 103.795, details: { special: "Chilli Crab Pasta", ambiance: "Bohemian & Relaxed", goodFor: "Brunch & Drinks" } },
+            { id: 6, name: "Dempsey Hill Black Pepper Crab", cuisine: "Seafood", rating: 4.7, description: "A lush green escape with famous black pepper crab.", lat: 1.309, lng: 103.808, details: { special: "Black Pepper Crab", ambiance: "Lush & Colonial", goodFor: "Special Occasions" } },
+
+            // Chinatown / Tiong Bahru
+            { id: 7, name: "Maxwell Food Centre Chicken Rice", cuisine: "Hawker", rating: 4.9, description: "Arguably the best Hainanese chicken rice in Singapore.", lat: 1.280, lng: 103.844, details: { special: "Hainanese Chicken Rice", ambiance: "Bustling Hawker Centre", goodFor: "Authentic Street Food" } },
+            { id: 9, name: "Chinatown Satay Skewers", cuisine: "Hawker", rating: 4.5, description: "Perfectly grilled satay with a rich peanut sauce.", lat: 1.283, lng: 103.841, details: { special: "Mixed Satay Platter", ambiance: "Lively Street Food", goodFor: "Late Night Snacks" } },
+            { id: 4, name: "Tiong Bahru Mod-Sin", cuisine: "Modern Singaporean", rating: 4.5, description: "Innovative dishes that reinvent local flavors.", lat: 1.284, lng: 103.829, details: { special: "Laksa Risotto", ambiance: "Hip & Trendy", goodFor: "Foodies" } },
+
+            // Bugis / Little India
+            { id: 8, name: "Little India Biryani", cuisine: "Indian", rating: 4.6, description: "Aromatic and flavorful biryani in the heart of Little India.", lat: 1.308, lng: 103.852, details: { special: "Hyderabadi Dum Biryani", ambiance: "Vibrant & Cultural", goodFor: "Authentic Indian" } },
+            { id: 15, name: "Bugis Street Bites", cuisine: "Street Food", rating: 4.3, description: "A bustling market with a huge variety of cheap and delicious snacks.", lat: 1.301, lng: 103.856, details: { special: "Fried Carrot Cake", ambiance: "Bustling & Energetic", goodFor: "Shopping Break" } },
+            { id: 18, name: "Raffles Hotel Long Bar", cuisine: "Bar & Grill", rating: 4.8, description: "Home of the iconic Singapore Sling cocktail.", lat: 1.295, lng: 103.854, details: { special: "Singapore Sling", ambiance: "Colonial & Historic", goodFor: "Classic Cocktails" } },
+            { id: 21, name: "Tekka Centre", cuisine: "Indian", rating: 4.4, description: "Vibrant market with authentic and affordable Indian food.", lat: 1.306, lng: 103.850, details: { special: "Thosai & Biryani", ambiance: "Vibrant & No-frills", goodFor: "Budget Indian Food" } },
+            
+            // East Coast / Katong / Geylang
+            { id: 5, name: "Joo Chiat Laksa House", cuisine: "Local Delights", rating: 4.8, description: "A legendary spot for Katong-style laksa.", lat: 1.307, lng: 103.902, details: { special: "Katong Laksa", ambiance: "Old School & Authentic", goodFor: "Laksa Lovers" } },
+            { id: 10, name: "East Coast Lagoon Food Village", cuisine: "Hawker", rating: 4.7, description: "Seaside hawker centre famous for BBQ seafood.", lat: 1.302, lng: 103.931, details: { special: "BBQ Stingray & Satay", ambiance: "Seaside & Casual", goodFor: "Local Experience" } },
+            { id: 14, name: "Katong Antique House", cuisine: "Peranakan", rating: 4.7, description: "Authentic Peranakan food in a beautifully preserved shophouse.", lat: 1.306, lng: 103.905, details: { special: "Babi Pongteh", ambiance: "Historic & Charming", goodFor: "Cultural Immersion" } },
+            { id: 17, name: "Geylang Serai Market", cuisine: "Malay", rating: 4.6, description: "A hub for traditional Malay and Indonesian cuisine.", lat: 1.316, lng: 103.892, details: { special: "Beef Rendang", ambiance: "Cultural & Authentic", goodFor: "Malay Food" } },
+
+            // North of Downtown
+            { id: 16, name: "Newton Food Centre", cuisine: "Hawker", rating: 4.5, description: "Featured in 'Crazy Rich Asians', famous for its seafood.", lat: 1.312, lng: 103.838, details: { special: "Oyster Omelette", ambiance: "Famous & Lively", goodFor: "Seafood Lovers" } },
             { id: 22, name: "Chomp Chomp Food Centre", cuisine: "Hawker", rating: 4.8, description: "Famous for BBQ seafood, satay, and sugar cane juice.", lat: 1.363, lng: 103.864, details: { special: "BBQ Stingray", ambiance: "Lively & Local", goodFor: "Supper" } },
-            { id: 23, name: "Zion Riverside Food Centre", cuisine: "Hawker", rating: 4.6, description: "Popular for its prawn noodles and char kway teow.", lat: 1.296, lng: 103.831, details: { special: "Prawn Noodles", ambiance: "Riverside & Casual", goodFor: "Local Favorites" } }
+
+            // South (Sentosa)
+            { id: 1, name: "Sentosa Seafood Grill", cuisine: "Seafood", rating: 4.7, description: "Freshly grilled seafood on the sandy shores of Sentosa.", lat: 1.255, lng: 103.823, details: { special: "Grilled Stingray", ambiance: "Beachfront & Casual", goodFor: "Families" } },
         ];
+
 
         let map;
         let markers = {};
@@ -320,7 +336,10 @@
             responseWrapper.className = 'chat-message new-message-animation flex items-start gap-2 md:gap-3';
             
             let listHtml = '';
-            restaurantData.forEach(resto => {
+            // Use the re-ordered and re-located data
+            const displayData = restaurantData.sort((a, b) => a.id - b.id);
+
+            displayData.forEach(resto => {
                 listHtml += `
                     <div class="restaurant-item glass-effect rounded-lg p-3 md:p-4 cursor-pointer shadow-sm" data-id="${resto.id}">
                         <div class="flex justify-between items-start">
@@ -541,7 +560,7 @@
                 setTimeout(() => {
                     typingIndicator.remove();
                     addAiResponse();
-                }, 2000); // Reduced delay for a quicker response
+                }, 8000); // Set delay to 8 seconds
             }, 600); 
         }
 
