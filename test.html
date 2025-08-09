@@ -325,10 +325,13 @@
                 <div class="glass-effect-ai-bubble rounded-lg p-3 md:p-4 space-y-4 w-full max-w-4xl">
                     <p class="text-sm md:text-base text-gray-900">Of course! Here are some restaurant recommendations for Kyoto. Click the results for more details.</p>
                     <div class="md:grid md:grid-cols-2 md:gap-4">
+                        <div class="md:hidden mb-4">
+                            <div id="map-mobile" class="h-[250px] rounded-lg"></div>
+                        </div>
                         <div class="relative">
                             <div class="overflow-y-auto h-[400px] md:h-[500px] pr-2 space-y-3 md:space-y-4">${listHtml}</div>
                         </div>
-                        <div class="hidden md:block" id="map"></div>
+                        <div class="hidden md:block" id="map-desktop"></div>
                     </div>
                 </div>
             `;
@@ -344,7 +347,10 @@
          * Initializes the Leaflet map and adds markers and hover events.
          */
         function initializeMapAndInteractions() {
-            map = L.map('map');
+            const isMobile = window.innerWidth < 768;
+            const mapId = isMobile ? 'map-mobile' : 'map-desktop';
+            
+            map = L.map(mapId);
             L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
                 attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
                 subdomains: 'abcd',
