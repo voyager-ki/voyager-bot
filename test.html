@@ -52,12 +52,6 @@
             animation: blink 1s step-start infinite;
         }
 
-        /* Style for the map container */
-        #map {
-            height: 500px;
-            border-radius: 0.5rem;
-        }
-
         /* --- Glassmorphism Helper Class --- */
         .glass-effect {
             background-color: rgba(255, 255, 255, 0.6);
@@ -330,9 +324,9 @@
                 </div>
                 <div class="glass-effect-ai-bubble rounded-lg p-3 md:p-4 space-y-4 w-full max-w-4xl">
                     <p class="text-sm md:text-base text-gray-900">Of course! Here are some restaurant recommendations for Kyoto. Click the results for more details.</p>
-                    <div class="md:grid md:grid-cols-2 md:gap-4">
+                    <div class="flex flex-col md:grid md:grid-cols-2 md:gap-4">
                         <div class="md:hidden mb-4">
-                            <div id="map-mobile" class="h-32 rounded-lg"></div>
+                            <div id="map-mobile" class="h-[160px] rounded-lg"></div>
                         </div>
                         <div class="relative">
                             <div class="overflow-y-auto h-[400px] md:h-[500px] pr-2 space-y-3 md:space-y-4">${listHtml}</div>
