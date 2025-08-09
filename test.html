@@ -210,7 +210,7 @@
         function smartScroll(element) {
             const chatRect = chatMessages.getBoundingClientRect();
             const elementRect = element.getBoundingClientRect();
-            const paddingTop = 16; // 1rem of padding
+            const paddingTop = 60; // Increased padding
 
             // If the bottom of the new element is below the visible area of the chat
             if (elementRect.bottom > chatRect.bottom) {
