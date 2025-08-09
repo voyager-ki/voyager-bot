@@ -164,7 +164,7 @@
                             <path fill-rule="evenodd" d="M9 3.5a5.5 5.5 0 100 11 5.5 5.5 0 000-11zM2 9a7 7 0 1112.452 4.391l3.328 3.329a.75.75 0 11-1.06 1.06l-3.329-3.328A7 7 0 012 9z" clip-rule="evenodd" />
                         </svg>
                     </div>
-                    <input id="chat-input" type="text" value="Recommendations for restaurants in Kyoto" class="block w-full rounded-full border-0 bg-white/75 py-2.5 md:py-3.5 pl-9 md:pl-11 pr-12 md:pr-16 text-sm text-gray-900 ring-1 ring-inset ring-gray-900/10 placeholder:text-gray-600 focus:ring-2 focus:ring-inset focus:ring-black sm:text-sm sm:leading-6" disabled>
+                    <input id="chat-input" type="text" value="Recommendations for restaurants in Singapore" class="block w-full rounded-full border-0 bg-white/75 py-2.5 md:py-3.5 pl-9 md:pl-11 pr-12 md:pr-16 text-sm text-gray-900 ring-1 ring-inset ring-gray-900/10 placeholder:text-gray-600 focus:ring-2 focus:ring-inset focus:ring-black sm:text-sm sm:leading-6" disabled>
                     <div class="absolute inset-y-0 right-0 flex items-center pr-1.5">
                         <div id="click-me-bubble" class="absolute bottom-full right-1/2 translate-x-1/2 mb-2 p-2 bg-gray-800 text-white text-xs rounded-lg shadow-lg opacity-0 transition-opacity duration-300 pointer-events-none whitespace-nowrap">
                             Click me!
@@ -192,32 +192,32 @@
         const sendButton = document.getElementById('send-button');
         const clickMeBubble = document.getElementById('click-me-bubble');
 
-        // --- Fictional Data with Coordinates Clustered in Downtown Kyoto ---
+        // --- Fictional Data with Coordinates Clustered in Downtown Singapore ---
         const restaurantData = [
-            { id: 0, name: "Gion Izakaya", cuisine: "Izakaya", rating: 4.7, description: "Lively spot with classic small plates and an extensive sake list.", lat: 35.0037, lng: 135.7783, details: { special: "Tuna Tataki", ambiance: "Lively & Traditional", goodFor: "Groups, Late Night" } },
-            { id: 1, name: "Kaze Arashiyama", cuisine: "Kaiseki", rating: 4.9, description: "Authentic multi-course dining with serene bamboo garden views.", lat: 35.0042, lng: 135.7751, details: { special: "Seasonal Kaiseki Course", ambiance: "Serene & Elegant", goodFor: "Special Occasions" } },
-            { id: 2, name: "Fushimi Sake House", cuisine: "Japanese Fusion", rating: 4.5, description: "Modern dishes paired perfectly with locally brewed sake.", lat: 35.0061, lng: 135.7689, details: { special: "Sake-marinated Black Cod", ambiance: "Modern & Chic", goodFor: "Sake Tasting" } },
-            { id: 3, name: "Kyoto Ramen Kitchen", cuisine: "Ramen", rating: 4.6, description: "Rich, flavorful broth and perfectly chewy noodles in a cozy setting.", lat: 35.0011, lng: 135.7681, details: { special: "Tonkotsu Black Ramen", ambiance: "Cozy & Casual", goodFor: "Quick Lunch" } },
-            { id: 4, name: "Pontocho Tempura", cuisine: "Tempura", rating: 4.8, description: "Exquisitely light and crispy tempura served right on the Kamo River.", lat: 35.0058, lng: 135.7715, details: { special: "Assorted Tempura Platter", ambiance: "Riverside Views", goodFor: "Romantic Dinner" } },
-            { id: 5, name: "Nishiki Market Sushi", cuisine: "Sushi", rating: 4.7, description: "The freshest cuts of fish sourced directly from the historic market.", lat: 35.0049, lng: 135.7657, details: { special: "Omakase Sushi Set", ambiance: "Bustling Market", goodFor: "Fresh Seafood" } },
-            { id: 6, name: "Higashiyama Tofu", cuisine: "Shojin Ryori", rating: 4.4, description: "Elegant vegetarian Buddhist cuisine featuring artisanal tofu.", lat: 35.0023, lng: 135.7795, details: { special: "Yudofu (Hot Tofu)", ambiance: "Zen & Minimalist", goodFor: "Vegetarian Dining" } },
-            { id: 7, name: "Kinkaku-ji Udon", cuisine: "Udon", rating: 4.3, description: "Hearty, handmade udon noodles with a view of the Golden Pavilion.", lat: 35.0081, lng: 135.7672, details: { special: "Kitsune Udon", ambiance: "Scenic & Casual", goodFor: "Sightseeing Lunch" } },
-            { id: 8, name: "Philosopher's Path Cafe", cuisine: "Cafe & Sweets", rating: 4.6, description: "A tranquil retreat for matcha, wagashi, and quiet contemplation.", lat: 35.0095, lng: 135.7748, details: { special: "Matcha Parfait", ambiance: "Quiet & Contemplative", goodFor: "Afternoon Tea" } },
-            { id: 9, name: "Miyako Soba", cuisine: "Soba", rating: 4.5, description: "Handmade buckwheat noodles served hot or cold with delicate sauces.", lat: 35.0088, lng: 135.7640, details: { special: "Zaru Soba", ambiance: "Simple & Authentic", goodFor: "Traditional Meal" } },
-            { id: 10, name: "Imperial Garden Teppanyaki", cuisine: "Teppanyaki", rating: 4.9, description: "Master chefs perform culinary artistry on iron griddles.", lat: 35.0076, lng: 135.7625, details: { special: "A5 Wagyu Teppanyaki", ambiance: "Upscale & Entertaining", goodFor: "Dinner Show" } },
-            { id: 11, name: "Yasaka Pagoda Yakitori", cuisine: "Yakitori", rating: 4.7, description: "Perfectly grilled skewers enjoyed in the historic Yasaka district.", lat: 35.0015, lng: 135.7788, details: { special: "Assorted Yakitori Skewers", ambiance: "Historic & Lively", goodFor: "Casual Dinner" } },
-            { id: 12, name: "Kurama Mountain Onsen Ryori", cuisine: "Ryori", rating: 4.8, description: "Traditional mountain cuisine served after a relaxing onsen bath.", lat: 35.0005, lng: 135.7719, details: { special: "Mountain Vegetable Tempura", ambiance: "Rustic & Relaxing", goodFor: "Day Trip Meal" } },
-            { id: 13, name: "Shijo Street Okonomiyaki", cuisine: "Okonomiyaki", rating: 4.4, description: "Savory pancakes cooked to perfection on a tabletop grill.", lat: 35.0046, lng: 135.7695, details: { special: "Kyoto-style Okonomiyaki", ambiance: "Fun & Interactive", goodFor: "Group Dining" } },
-            { id: 14, name: "The Kyoto Grill", cuisine: "Wagyu Steak", rating: 5.0, description: "Experience the ultimate melt-in-your-mouth A5 Wagyu beef.", lat: 35.0025, lng: 135.7730, details: { special: "Wagyu Sirloin Steak", ambiance: "Elegant & Modern", goodFor: "Fine Dining" } },
-            { id: 15, name: "Uji Matcha House", cuisine: "Desserts", rating: 4.8, description: "A paradise for matcha lovers, from parfaits to rich ice cream.", lat: 35.0066, lng: 135.7662, details: { special: "Matcha Tiramisu", ambiance: "Modern & Sweet", goodFor: "Dessert" } },
-            { id: 16, name: "Kiyomizu-dera Tea House", cuisine: "Tea & Snacks", rating: 4.6, description: "Enjoy traditional tea with stunning views of the city below.", lat: 35.0019, lng: 135.7801, details: { special: "Matcha and Wagashi Set", ambiance: "Scenic & Traditional", goodFor: "Rest Stop" } },
-            { id: 17, name: "Arashiyama Monkey Park Eatery", cuisine: "Light Meals", rating: 4.1, description: "Simple, delicious bites to refuel after a hike with the monkeys.", lat: 35.0073, lng: 135.7764, details: { special: "Mitarashi Dango", ambiance: "Casual & Outdoorsy", goodFor: "Snacks" } },
-            { id: 18, name: "Gekkeikan Okura Kushiage", cuisine: "Kushiage", rating: 4.5, description: "Deep-fried skewers of meat and vegetables with creative dipping sauces.", lat: 35.0033, lng: 135.7650, details: { special: "Chef's Kushiage Selection", ambiance: "Cozy & Traditional", goodFor: "Unique Experience" } },
-            { id: 19, name: "Nijo Castle Dining", cuisine: "Kaiseki", rating: 4.7, description: "Dine like a shogun with refined dishes in a historic setting.", lat: 35.0052, lng: 135.7632, details: { special: "Shogun's Feast Course", ambiance: "Historic & Formal", goodFor: "Cultural Dining" } },
-            { id: 20, name: "Kyoto Station Curry", cuisine: "Japanese Curry", rating: 4.3, description: "Quick, satisfying, and deeply flavorful curry rice for travelers.", lat: 35.0009, lng: 135.7657, details: { special: "Katsu Curry", ambiance: "Fast & Convenient", goodFor: "Travelers" } },
-            { id: 21, name: "Tofuku-ji Temple Soba", cuisine: "Soba", rating: 4.6, description: "A quiet spot known for its delicious soba and beautiful autumn views.", lat: 35.0028, lng: 135.7703, details: { special: "Tempura Soba", ambiance: "Quiet & Scenic", goodFor: "Peaceful Lunch" } },
-            { id: 22, name: "Kamo River BBQ", cuisine: "Yakiniku", rating: 4.5, description: "Grill your own premium cuts of meat while enjoying the riverside ambiance.", lat: 35.0060, lng: 135.7700, details: { special: "Assorted Meat Platter", ambiance: "Riverside & Casual", goodFor: "Summer Evenings" } },
-            { id: 23, name: "Fushimi Inari Fox Cafe", cuisine: "Themed Cafe", rating: 4.2, description: "Adorable fox-themed lattes and snacks near the famous torii gates.", lat: 35.0018, lng: 135.7767, details: { special: "Fox Latte Art", ambiance: "Cute & Themed", goodFor: "Photos & Fun" } }
+            { id: 0, name: "Marina Bay Hawker Stall", cuisine: "Hawker", rating: 4.8, description: "Classic street food with a stunning waterfront view.", lat: 1.283, lng: 103.860, details: { special: "Chilli Crab", ambiance: "Bustling & Scenic", goodFor: "Tourists & Locals" } },
+            { id: 1, name: "Sentosa Seafood Grill", cuisine: "Seafood", rating: 4.7, description: "Freshly grilled seafood on the sandy shores of Sentosa.", lat: 1.255, lng: 103.819, details: { special: "Grilled Stingray", ambiance: "Beachfront & Casual", goodFor: "Families" } },
+            { id: 2, name: "Orchard Road Peranakan", cuisine: "Peranakan", rating: 4.6, description: "Authentic Straits Chinese cuisine in a modern setting.", lat: 1.304, lng: 103.831, details: { special: "Ayam Buah Keluak", ambiance: "Elegant & Modern", goodFor: "Cultural Dining" } },
+            { id: 3, name: "Clarke Quay Chili Crab", cuisine: "Seafood", rating: 4.9, description: "Famous for its award-winning chili crab.", lat: 1.290, lng: 103.846, details: { special: "Chilli Crab", ambiance: "Riverside & Lively", goodFor: "Groups" } },
+            { id: 4, name: "Tiong Bahru Mod-Sin", cuisine: "Modern Singaporean", rating: 4.5, description: "Innovative dishes that reinvent local flavors.", lat: 1.282, lng: 103.827, details: { special: "Laksa Risotto", ambiance: "Hip & Trendy", goodFor: "Foodies" } },
+            { id: 5, name: "Joo Chiat Laksa House", cuisine: "Local Delights", rating: 4.8, description: "A legendary spot for Katong-style laksa.", lat: 1.305, lng: 103.905, details: { special: "Katong Laksa", ambiance: "Old School & Authentic", goodFor: "Laksa Lovers" } },
+            { id: 6, name: "Dempsey Hill Black Pepper Crab", cuisine: "Seafood", rating: 4.7, description: "A lush green escape with famous black pepper crab.", lat: 1.308, lng: 103.808, details: { special: "Black Pepper Crab", ambiance: "Lush & Colonial", goodFor: "Special Occasions" } },
+            { id: 7, name: "Maxwell Food Centre Chicken Rice", cuisine: "Hawker", rating: 4.9, description: "Arguably the best Hainanese chicken rice in Singapore.", lat: 1.280, lng: 103.844, details: { special: "Hainanese Chicken Rice", ambiance: "Bustling Hawker Centre", goodFor: "Authentic Street Food" } },
+            { id: 8, name: "Little India Biryani", cuisine: "Indian", rating: 4.6, description: "Aromatic and flavorful biryani in the heart of Little India.", lat: 1.312, lng: 103.855, details: { special: "Hyderabadi Dum Biryani", ambiance: "Vibrant & Cultural", goodFor: "Authentic Indian" } },
+            { id: 9, name: "Chinatown Satay Skewers", cuisine: "Hawker", rating: 4.5, description: "Perfectly grilled satay with a rich peanut sauce.", lat: 1.282, lng: 103.844, details: { special: "Mixed Satay Platter", ambiance: "Lively Street Food", goodFor: "Late Night Snacks" } },
+            { id: 10, name: "East Coast Lagoon Food Village", cuisine: "Hawker", rating: 4.7, description: "Seaside hawker centre famous for BBQ seafood.", lat: 1.305, lng: 103.920, details: { special: "BBQ Stingray & Satay", ambiance: "Seaside & Casual", goodFor: "Local Experience" } },
+            { id: 11, name: "Holland Village Fusion Bistro", cuisine: "Fusion", rating: 4.4, description: "A trendy spot with a mix of Western and Asian flavors.", lat: 1.311, lng: 103.795, details: { special: "Chilli Crab Pasta", ambiance: "Bohemian & Relaxed", goodFor: "Brunch & Drinks" } },
+            { id: 12, name: "Gardens by the Bay Dining", cuisine: "International", rating: 4.6, description: "Dine amidst the spectacular Supertree Grove.", lat: 1.281, lng: 103.863, details: { special: "Pan-Seared Scallops", ambiance: "Futuristic & Scenic", goodFor: "Unique Views" } },
+            { id: 13, name: "The Fullerton Bay Restaurant", cuisine: "Fine Dining", rating: 5.0, description: "Exquisite dining with panoramic views of Marina Bay.", lat: 1.284, lng: 103.854, details: { special: "Lobster Thermidor", ambiance: "Luxurious & Romantic", goodFor: "Anniversaries" } },
+            { id: 14, name: "Katong Antique House", cuisine: "Peranakan", rating: 4.7, description: "Authentic Peranakan food in a beautifully preserved shophouse.", lat: 1.306, lng: 103.905, details: { special: "Babi Pongteh", ambiance: "Historic & Charming", goodFor: "Cultural Immersion" } },
+            { id: 15, name: "Bugis Street Bites", cuisine: "Street Food", rating: 4.3, description: "A bustling market with a huge variety of cheap and delicious snacks.", lat: 1.300, lng: 103.855, details: { special: "Fried Carrot Cake", ambiance: "Bustling & Energetic", goodFor: "Shopping Break" } },
+            { id: 16, name: "Newton Food Centre", cuisine: "Hawker", rating: 4.5, description: "Featured in 'Crazy Rich Asians', famous for its seafood.", lat: 1.312, lng: 103.838, details: { special: "Oyster Omelette", ambiance: "Famous & Lively", goodFor: "Seafood Lovers" } },
+            { id: 17, name: "Geylang Serai Market", cuisine: "Malay", rating: 4.6, description: "A hub for traditional Malay and Indonesian cuisine.", lat: 1.314, lng: 103.909, details: { special: "Beef Rendang", ambiance: "Cultural & Authentic", goodFor: "Malay Food" } },
+            { id: 18, name: "Raffles Hotel Long Bar", cuisine: "Bar & Grill", rating: 4.8, description: "Home of the iconic Singapore Sling cocktail.", lat: 1.294, lng: 103.854, details: { special: "Singapore Sling", ambiance: "Colonial & Historic", goodFor: "Classic Cocktails" } },
+            { id: 19, name: "Esplanade Rooftop Bar", cuisine: "Bar", rating: 4.6, description: "Stunning views of the city skyline and Marina Bay Sands.", lat: 1.289, lng: 103.855, details: { special: "Craft Cocktails", ambiance: "Rooftop & Scenic", goodFor: "Evening Drinks" } },
+            { id: 20, name: "Lau Pa Sat", cuisine: "Hawker", rating: 4.7, description: "Historic food centre in the heart of the financial district.", lat: 1.280, lng: 103.850, details: { special: "Satay Street (at night)", ambiance: "Historic & Bustling", goodFor: "Variety" } },
+            { id: 21, name: "Tekka Centre", cuisine: "Indian", rating: 4.4, description: "Vibrant market with authentic and affordable Indian food.", lat: 1.307, lng: 103.850, details: { special: "Thosai & Biryani", ambiance: "Vibrant & No-frills", goodFor: "Budget Indian Food" } },
+            { id: 22, name: "Chomp Chomp Food Centre", cuisine: "Hawker", rating: 4.8, description: "Famous for BBQ seafood, satay, and sugar cane juice.", lat: 1.363, lng: 103.864, details: { special: "BBQ Stingray", ambiance: "Lively & Local", goodFor: "Supper" } },
+            { id: 23, name: "Zion Riverside Food Centre", cuisine: "Hawker", rating: 4.6, description: "Popular for its prawn noodles and char kway teow.", lat: 1.296, lng: 103.831, details: { special: "Prawn Noodles", ambiance: "Riverside & Casual", goodFor: "Local Favorites" } }
         ];
 
         let map;
@@ -361,7 +361,7 @@
                     </svg>
                 </div>
                 <div class="glass-effect-ai-bubble rounded-lg p-3 md:p-4 space-y-4 w-full max-w-4xl">
-                    <p class="text-sm md:text-base text-gray-900">Of course! Here are some restaurant recommendations for Kyoto. Click the results for more details.</p>
+                    <p class="text-sm md:text-base text-gray-900">Of course! Here are some restaurant recommendations for Singapore. Click the results for more details.</p>
                     <div class="flex flex-col md:grid md:grid-cols-2 md:gap-4">
                         <div class="md:hidden mb-4">
                             <div id="map-mobile" class="h-[160px] rounded-lg"></div>
@@ -526,9 +526,6 @@
         function handleSend() {
             const message = chatInput.value;
             if (!message || message === '...') return;
-            
-            const clickMeBubble = document.getElementById('click-me-bubble');
-            clickMeBubble.classList.add('opacity-0');
 
             addUserMessage(message);
 
