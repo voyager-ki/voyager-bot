@@ -61,12 +61,6 @@
             animation: pulsate 1.5s infinite;
         }
 
-        /* Style for the map container */
-        #map {
-            height: 500px;
-            border-radius: 0.5rem;
-        }
-
         /* --- Glassmorphism Helper Class --- */
         .glass-effect {
             background-color: rgba(255, 255, 255, 0.6);
@@ -211,12 +205,12 @@
             { id: 14, name: "Katong Antique House", cuisine: "Peranakan", rating: 4.7, description: "Authentic Peranakan food in a beautifully preserved shophouse.", lat: 1.306, lng: 103.905, details: { special: "Babi Pongteh", ambiance: "Historic & Charming", goodFor: "Cultural Immersion" } },
             { id: 15, name: "Bugis Street Bites", cuisine: "Street Food", rating: 4.3, description: "A bustling market with a huge variety of cheap and delicious snacks.", lat: 1.300, lng: 103.855, details: { special: "Fried Carrot Cake", ambiance: "Bustling & Energetic", goodFor: "Shopping Break" } },
             { id: 16, name: "Newton Food Centre", cuisine: "Hawker", rating: 4.5, description: "Featured in 'Crazy Rich Asians', famous for its seafood.", lat: 1.312, lng: 103.838, details: { special: "Oyster Omelette", ambiance: "Famous & Lively", goodFor: "Seafood Lovers" } },
-            { id: 17, name: "Geylang Serai Market", cuisine: "Malay", rating: 4.6, description: "A hub for traditional Malay and Indonesian cuisine.", lat: 1.314, lng: 103.909, details: { special: "Beef Rendang", ambiance: "Cultural & Authentic", goodFor: "Malay Food" } },
+            { id: 17, name: "Geylang Serai Market", cuisine: "Malay", rating: 4.6, description: "A hub for traditional Malay and Indonesian cuisine.", lat: 1.315, lng: 103.885, details: { special: "Beef Rendang", ambiance: "Cultural & Authentic", goodFor: "Malay Food" } },
             { id: 18, name: "Raffles Hotel Long Bar", cuisine: "Bar & Grill", rating: 4.8, description: "Home of the iconic Singapore Sling cocktail.", lat: 1.294, lng: 103.854, details: { special: "Singapore Sling", ambiance: "Colonial & Historic", goodFor: "Classic Cocktails" } },
             { id: 19, name: "Esplanade Rooftop Bar", cuisine: "Bar", rating: 4.6, description: "Stunning views of the city skyline and Marina Bay Sands.", lat: 1.289, lng: 103.855, details: { special: "Craft Cocktails", ambiance: "Rooftop & Scenic", goodFor: "Evening Drinks" } },
             { id: 20, name: "Lau Pa Sat", cuisine: "Hawker", rating: 4.7, description: "Historic food centre in the heart of the financial district.", lat: 1.280, lng: 103.850, details: { special: "Satay Street (at night)", ambiance: "Historic & Bustling", goodFor: "Variety" } },
             { id: 21, name: "Tekka Centre", cuisine: "Indian", rating: 4.4, description: "Vibrant market with authentic and affordable Indian food.", lat: 1.307, lng: 103.850, details: { special: "Thosai & Biryani", ambiance: "Vibrant & No-frills", goodFor: "Budget Indian Food" } },
-            { id: 22, name: "Chomp Chomp Food Centre", cuisine: "Hawker", rating: 4.8, description: "Famous for BBQ seafood, satay, and sugar cane juice.", lat: 1.363, lng: 103.864, details: { special: "BBQ Stingray", ambiance: "Lively & Local", goodFor: "Supper" } },
+            { id: 22, name: "Chomp Chomp Food Centre", cuisine: "Hawker", rating: 4.8, description: "Famous for BBQ seafood, satay, and sugar cane juice.", lat: 1.320, lng: 103.860, details: { special: "BBQ Stingray", ambiance: "Lively & Local", goodFor: "Supper" } },
             { id: 23, name: "Zion Riverside Food Centre", cuisine: "Hawker", rating: 4.6, description: "Popular for its prawn noodles and char kway teow.", lat: 1.296, lng: 103.831, details: { special: "Prawn Noodles", ambiance: "Riverside & Casual", goodFor: "Local Favorites" } }
         ];
 
@@ -495,7 +489,7 @@
                     }
                     
                     if (marker) {
-                        map.panTo(marker.getLatLng());
+                        map.flyTo(marker.getLatLng(), 16);
                         marker.openPopup();
                     }
                 });
