@@ -52,6 +52,12 @@
             animation: blink 1s step-start infinite;
         }
 
+        /* Style for the map container */
+        #map {
+            height: 500px;
+            border-radius: 0.5rem;
+        }
+
         /* --- Glassmorphism Helper Class --- */
         .glass-effect {
             background-color: rgba(255, 255, 255, 0.6);
@@ -198,10 +204,19 @@
         let markers = {};
 
         /**
-         * Scrolls the chat window to the bottom.
+         * Scrolls the chat window to bring the new element into view.
+         * @param {HTMLElement} element - The new element to scroll to.
          */
-        function scrollToBottom() {
-            chatMessages.scrollTop = chatMessages.scrollHeight;
+        function smartScroll(element) {
+            const chatRect = chatMessages.getBoundingClientRect();
+            const elementRect = element.getBoundingClientRect();
+
+            if (elementRect.bottom > chatRect.bottom) {
+                chatMessages.scrollTo({
+                    top: element.offsetTop - chatHeader.offsetHeight,
+                    behavior: 'smooth'
+                });
+            }
         }
 
         /**
@@ -220,7 +235,7 @@
                 </div>
             `;
             chatMessages.appendChild(messageWrapper);
-            scrollToBottom();
+            smartScroll(messageWrapper);
         }
         
         /**
@@ -270,7 +285,7 @@
                 </div>
             `;
             chatMessages.appendChild(indicatorWrapper);
-            scrollToBottom();
+            smartScroll(indicatorWrapper);
             return indicatorWrapper;
         }
 
@@ -337,10 +352,11 @@
             `;
             chatMessages.appendChild(responseWrapper);
             
-            // THE FIX: Delay map initialization slightly to ensure the container is rendered
             setTimeout(() => {
                 initializeMapAndInteractions();
             }, 50);
+            
+            smartScroll(responseWrapper);
         }
 
         /**
