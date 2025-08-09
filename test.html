@@ -204,16 +204,19 @@
         let markers = {};
 
         /**
-         * Scrolls the chat window to bring the new element into view.
+         * Scrolls the chat window to bring the new element into view if it's not visible.
          * @param {HTMLElement} element - The new element to scroll to.
          */
         function smartScroll(element) {
             const chatRect = chatMessages.getBoundingClientRect();
             const elementRect = element.getBoundingClientRect();
+            const paddingTop = 16; // 1rem of padding
 
+            // If the bottom of the new element is below the visible area of the chat
             if (elementRect.bottom > chatRect.bottom) {
+                // Scroll to the element's position, with some padding at the top
                 chatMessages.scrollTo({
-                    top: element.offsetTop - chatHeader.offsetHeight,
+                    top: element.offsetTop - paddingTop,
                     behavior: 'smooth'
                 });
             }
