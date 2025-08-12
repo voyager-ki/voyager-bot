@@ -389,6 +389,18 @@
             }, 50);
             
             smartScroll(responseWrapper);
+                        // --- START: LIME SURVEY INTEGRATION CODE ---
+            // This is the new code you need to add.
+            // After the response is fully displayed, wait 10 seconds and then
+            // send a message to the parent LimeSurvey window to show the 'Next' button.
+            
+            console.log("Restaurant list loaded. Starting 10-second timer.");
+            setTimeout(() => {
+                console.log("Timer finished. Sending 'showNextButton' message to LimeSurvey.");
+                window.parent.postMessage('showNextButton', '*');
+            }, 10000); // 10,000 milliseconds = 10 seconds
+            // --- END: LIME SURVEY INTEGRATION CODE ---
+
         }
 
         /**
