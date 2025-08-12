@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voyager AI - Chat</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts: Inter and Playfair Display -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    
+    <!-- Leaflet Map Library -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+    <style>
+        /* Applying the Inter font family globally */
+        html, body {
+            overflow: hidden;
+            height: 100%;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #111827; /* Dark grey background */
+        }
+        
+        /* Custom font class for the new title font */
+        .font-playfair {
+            font-family: 'Playfair Display', serif;
+        }
+        
+        /* --- Animation Keyframes --- */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Animation is now in a separate class for dynamic application */
+        .new-message-animation {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        /* Blinking cursor for typing indicator */
+        @keyframes blink {
+            50% { opacity: 0; }
+        }
+        .blinking-cursor {
+            animation: blink 1s step-start infinite;
+        }
+
+        /* Pulsation animation for the send button */
+        @keyframes pulsate {
+            0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.4); }
+            50% { transform: scale(1.1); box-shadow: 0 0 0 10px rgba(0, 0, 0, 0); }
+        }
+        .pulsate {
+            animation: pulsate 1.5s infinite;
+        }
+
+        /* Style for the map container */
+        #map {
+            height: 500px;
+            border-radius: 0.5rem;
+        }
+
+        /* --- Glassmorphism Helper Class --- */
+        .glass-effect {
+            background-color: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
+        }
+        .restaurant-item.glass-effect:hover {
+            background-color: rgba(255, 255, 255, 0.8);
+        }
+        .glass-effect-ai-bubble {
+            background-color: rgba(229, 231, 235, 0.7); /* Light gray base for AI bubbles */
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .glass-effect-dark {
+             background-color: rgba(17, 24, 39, 0.8);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* --- List Fade Effect --- */
+        .list-fade-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2rem; /* 32px */
+            background: linear-gradient(to bottom, rgba(249, 250, 251, 0.8), transparent);
+            z-index: 10;
+            pointer-events: none; /* Allows scrolling through the gradient */
+        }
+
+        .list-fade-container::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 2rem; /* 32px */
+            background: linear-gradient(to top, rgba(249, 250, 251, 0.8), transparent);
+            z-index: 10;
+            pointer-events: none; /* Allows scrolling through the gradient */
+        }
+        
+        /* --- Card Expansion --- */
+        .restaurant-details {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-in-out;
+        }
+        .expand-icon {
+            transition: transform 0.3s ease-in-out;
+        }
+        .expanded .expand-icon {
+            transform: rotate(180deg);
+        }
+        
+        /* --- Card Highlighting --- */
+        .highlighted-card {
+            box-shadow: 0 0 0 2px black !important;
+            transition: box-shadow 0.3s ease-in-out;
+        }
+    </style>
+</head>
+<body class="antialiased">
+    
+    <div class="md:p-8 md:flex md:items-center md:justify-center min-h-screen">
+        <div id="chat-container" class="relative flex flex-col w-full max-w-4xl md:h-[95vh] md:max-h-[1000px] md:rounded-2xl md:shadow-2xl md:overflow-hidden bg-gray-100">
+            <!-- Chat Header -->
+            <header id="chat-header" class="glass-effect p-3 md:p-4 shadow-sm opacity-0 transition-opacity duration-500 flex-shrink-0">
+                <div class="flex items-center">
+                    <svg class="h-6 w-6 md:h-8 md:w-8 text-slate-800 mr-2 md:mr-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M12 21a9 9 0 100-18 9 9 0 000 18z" />
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 8.25L12 15.75l-3.75-7.5L12 3l3.75 5.25z" />
+                    </svg>
+                    <h1 class="font-playfair text-xl md:text-2xl font-bold text-slate-900">Voyager AI</h1>
+                </div>
+            </header>
+
+            <!-- Chat Messages Area -->
+            <main id="chat-messages" class="flex-1 overflow-y-auto p-3 md:p-6 space-y-4 md:space-y-6">
+                <!-- Messages will be dynamically added here -->
+            </main>
+
+            <!-- Chat Input Area -->
+            <footer id="chat-footer" class="glass-effect p-3 md:p-4 opacity-0 transition-opacity duration-500 flex-shrink-0">
+                <div id="chat-input-container" class="relative w-full">
+                    <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 md:pl-4">
+                        <svg class="h-4 w-4 md:h-5 md:w-5 text-gray-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                            <path fill-rule="evenodd" d="M9 3.5a5.5 5.5 0 100 11 5.5 5.5 0 000-11zM2 9a7 7 0 1112.452 4.391l3.328 3.329a.75.75 0 11-1.06 1.06l-3.329-3.328A7 7 0 012 9z" clip-rule="evenodd" />
+                        </svg>
+                    </div>
+                    <input id="chat-input" type="text" value="Recommendations for restaurants in Singapore" class="block w-full rounded-full border-0 bg-white/75 py-2.5 md:py-3.5 pl-9 md:pl-11 pr-12 md:pr-16 text-sm text-gray-900 ring-1 ring-inset ring-gray-900/10 placeholder:text-gray-600 focus:ring-2 focus:ring-inset focus:ring-black sm:text-sm sm:leading-6" disabled>
+                    <div class="absolute inset-y-0 right-0 flex items-center pr-1.5">
+                        <div id="click-me-bubble" class="absolute bottom-full right-1/2 translate-x-1/2 mb-2 p-2 bg-gray-800 text-white text-xs rounded-lg shadow-lg opacity-0 transition-opacity duration-300 pointer-events-none whitespace-nowrap">
+                            Click me!
+                            <div class="absolute left-1/2 -translate-x-1/2 bottom-[-8px] w-0 h-0 border-l-8 border-l-transparent border-r-8 border-r-transparent border-t-8 border-t-gray-800"></div>
+                        </div>
+                        <button id="send-button" type="button" class="inline-flex items-center justify-center rounded-full bg-black h-8 w-8 md:h-9 md:w-9 text-sm font-semibold text-white shadow-sm hover:bg-gray-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-black transition-colors duration-300">
+                            <span class="sr-only">Send</span>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 md:h-5 md:w-5" viewBox="0 0 20 20" fill="currentColor">
+                              <path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </footer>
+        </div>
+    </div>
+
+    <script>
+        // --- DOM Element References ---
+        const chatContainer = document.getElementById('chat-container');
+        const chatHeader = document.getElementById('chat-header');
+        const chatFooter = document.getElementById('chat-footer');
+        const chatMessages = document.getElementById('chat-messages');
+        const chatInput = document.getElementById('chat-input');
+        const sendButton = document.getElementById('send-button');
+        const clickMeBubble = document.getElementById('click-me-bubble');
+
+        // --- Fictional Data with Coordinates Clustered in Downtown Singapore ---
+        const restaurantData = [
+            // Marina Bay / Downtown Core
+            { id: 0, name: "Marina Bay Hawker Stall", cuisine: "Hawker", rating: 4.8, description: "Classic street food with a stunning waterfront view.", lat: 1.283, lng: 103.860, details: { special: "Chilli Crab", ambiance: "Bustling & Scenic", goodFor: "Tourists & Locals" } },
+            { id: 1, name: "Sentosa Seafood Grill", cuisine: "Seafood", rating: 4.7, description: "Freshly grilled seafood on the sandy shores of Sentosa.", lat: 1.255, lng: 103.823, details: { special: "Grilled Stingray", ambiance: "Beachfront & Casual", goodFor: "Families" } },
+            { id: 2, name: "Orchard Road Peranakan", cuisine: "Peranakan", rating: 4.6, description: "Authentic Straits Chinese cuisine in a modern setting.", lat: 1.304, lng: 103.831, details: { special: "Ayam Buah Keluak", ambiance: "Elegant & Modern", goodFor: "Cultural Dining" } },
+            { id: 3, name: "Clarke Quay Chili Crab", cuisine: "Seafood", rating: 4.9, description: "Famous for its award-winning chili crab.", lat: 1.291, lng: 103.846, details: { special: "Chilli Crab", ambiance: "Riverside & Lively", goodFor: "Groups" } },
+            { id: 4, name: "Tiong Bahru Mod-Sin", cuisine: "Modern Singaporean", rating: 4.5, description: "Innovative dishes that reinvent local flavors.", lat: 1.284, lng: 103.829, details: { special: "Laksa Risotto", ambiance: "Hip & Trendy", goodFor: "Foodies" } },
+            { id: 5, name: "Joo Chiat Laksa House", cuisine: "Local Delights", rating: 4.8, description: "A legendary spot for Katong-style laksa.", lat: 1.307, lng: 103.902, details: { special: "Katong Laksa", ambiance: "Old School & Authentic", goodFor: "Laksa Lovers" } },
+            
+            // Other restaurants
+            { id: 6, name: "Dempsey Hill Black Pepper Crab", cuisine: "Seafood", rating: 4.7, description: "A lush green escape with famous black pepper crab.", lat: 1.309, lng: 103.808, details: { special: "Black Pepper Crab", ambiance: "Lush & Colonial", goodFor: "Special Occasions" } },
+            { id: 7, name: "Maxwell Food Centre Chicken Rice", cuisine: "Hawker", rating: 4.9, description: "Arguably the best Hainanese chicken rice in Singapore.", lat: 1.280, lng: 103.844, details: { special: "Hainanese Chicken Rice", ambiance: "Bustling Hawker Centre", goodFor: "Authentic Street Food" } },
+            { id: 8, name: "Little India Biryani", cuisine: "Indian", rating: 4.6, description: "Aromatic and flavorful biryani in the heart of Little India.", lat: 1.308, lng: 103.852, details: { special: "Hyderabadi Dum Biryani", ambiance: "Vibrant & Cultural", goodFor: "Authentic Indian" } },
+            { id: 9, name: "Chinatown Satay Skewers", cuisine: "Hawker", rating: 4.5, description: "Perfectly grilled satay with a rich peanut sauce.", lat: 1.283, lng: 103.841, details: { special: "Mixed Satay Platter", ambiance: "Lively Street Food", goodFor: "Late Night Snacks" } },
+            { id: 10, name: "East Coast Lagoon Food Village", cuisine: "Hawker", rating: 4.7, description: "Seaside hawker centre famous for BBQ seafood.", lat: 1.302, lng: 103.931, details: { special: "BBQ Stingray & Satay", ambiance: "Seaside & Casual", goodFor: "Local Experience" } },
+            { id: 11, name: "Holland Village Fusion Bistro", cuisine: "Fusion", rating: 4.4, description: "A trendy spot with a mix of Western and Asian flavors.", lat: 1.311, lng: 103.795, details: { special: "Chilli Crab Pasta", ambiance: "Bohemian & Relaxed", goodFor: "Brunch & Drinks" } },
+            { id: 12, name: "Gardens by the Bay Dining", cuisine: "International", rating: 4.6, description: "Dine amidst the spectacular Supertree Grove.", lat: 1.281, lng: 103.865, details: { special: "Pan-Seared Scallops", ambiance: "Futuristic & Scenic", goodFor: "Unique Views" } },
+            { id: 13, name: "The Fullerton Bay Restaurant", cuisine: "Fine Dining", rating: 5.0, description: "Exquisite dining with panoramic views of Marina Bay.", lat: 1.285, lng: 103.854, details: { special: "Lobster Thermidor", ambiance: "Luxurious & Romantic", goodFor: "Anniversaries" } },
+            { id: 14, name: "Katong Antique House", cuisine: "Peranakan", rating: 4.7, description: "Authentic Peranakan food in a beautifully preserved shophouse.", lat: 1.306, lng: 103.905, details: { special: "Babi Pongteh", ambiance: "Historic & Charming", goodFor: "Cultural Immersion" } },
+            { id: 15, name: "Bugis Street Bites", cuisine: "Street Food", rating: 4.3, description: "A bustling market with a huge variety of cheap and delicious snacks.", lat: 1.301, lng: 103.856, details: { special: "Fried Carrot Cake", ambiance: "Bustling & Energetic", goodFor: "Shopping Break" } },
+            { id: 16, name: "Newton Food Centre", cuisine: "Hawker", rating: 4.5, description: "Featured in 'Crazy Rich Asians', famous for its seafood.", lat: 1.312, lng: 103.838, details: { special: "Oyster Omelette", ambiance: "Famous & Lively", goodFor: "Seafood Lovers" } },
+            { id: 17, name: "Geylang Serai Market", cuisine: "Malay", rating: 4.6, description: "A hub for traditional Malay and Indonesian cuisine.", lat: 1.316, lng: 103.892, details: { special: "Beef Rendang", ambiance: "Cultural & Authentic", goodFor: "Malay Food" } },
+            { id: 18, name: "Raffles Hotel Long Bar", cuisine: "Bar & Grill", rating: 4.8, description: "Home of the iconic Singapore Sling cocktail.", lat: 1.295, lng: 103.854, details: { special: "Singapore Sling", ambiance: "Colonial & Historic", goodFor: "Classic Cocktails" } },
+            { id: 19, name: "Esplanade Rooftop Bar", cuisine: "Bar", rating: 4.6, description: "Stunning views of the city skyline and Marina Bay Sands.", lat: 1.289, lng: 103.855, details: { special: "Craft Cocktails", ambiance: "Rooftop & Scenic", goodFor: "Evening Drinks" } },
+            { id: 20, name: "Lau Pa Sat", cuisine: "Hawker", rating: 4.7, description: "Historic food centre in the heart of the financial district.", lat: 1.279, lng: 103.850, details: { special: "Satay Street (at night)", ambiance: "Historic & Bustling", goodFor: "Variety" } },
+            { id: 21, name: "Tekka Centre", cuisine: "Indian", rating: 4.4, description: "Vibrant market with authentic and affordable Indian food.", lat: 1.306, lng: 103.850, details: { special: "Thosai & Biryani", ambiance: "Vibrant & No-frills", goodFor: "Budget Indian Food" } },
+            { id: 22, name: "Chomp Chomp Food Centre", cuisine: "Hawker", rating: 4.8, description: "Famous for BBQ seafood, satay, and sugar cane juice.", lat: 1.363, lng: 103.864, details: { special: "BBQ Stingray", ambiance: "Lively & Local", goodFor: "Supper" } },
+            { id: 23, name: "Zion Riverside Food Centre", cuisine: "Hawker", rating: 4.6, description: "Popular for its prawn noodles and char kway teow.", lat: 1.295, lng: 103.832, details: { special: "Prawn Noodles", ambiance: "Riverside & Casual", goodFor: "Local Favorites" } }
+        ];
+
+
+        let map;
+        let markers = {};
+        let displayedRestaurants = []; // Holds the currently displayed restaurants
+
+        /**
+         * Scrolls the chat window to bring the new element into view if it's not visible.
+         * @param {HTMLElement} element - The new element to scroll to.
+         */
+        function smartScroll(element) {
+            const chatRect = chatMessages.getBoundingClientRect();
+            const elementRect = element.getBoundingClientRect();
+            const paddingTop = 60; // Increased padding
+
+            // If the bottom of the new element is below the visible area of the chat
+            if (elementRect.bottom > chatRect.bottom) {
+                // Scroll to the element's position, with some padding at the top
+                chatMessages.scrollTo({
+                    top: element.offsetTop - paddingTop,
+                    behavior: 'smooth'
+                });
+            }
+        }
+
+        /**
+         * Appends a user's message to the chat.
+         * @param {string} message - The text of the message.
+         */
+        function addUserMessage(message) {
+            const messageWrapper = document.createElement('div');
+            messageWrapper.className = 'chat-message new-message-animation flex items-start gap-2 md:gap-3 justify-end';
+            messageWrapper.innerHTML = `
+                <div class="glass-effect-dark text-white rounded-lg p-3 md:p-4 max-w-lg">
+                    <p class="text-sm md:text-base">${message}</p>
+                </div>
+                <div class="flex-shrink-0 h-8 w-8 md:h-10 md:w-10 rounded-full bg-gray-300 flex items-center justify-center">
+                    <svg class="h-5 w-5 md:h-6 md:w-6 text-gray-600" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" /></svg>
+                </div>
+            `;
+            chatMessages.appendChild(messageWrapper);
+            smartScroll(messageWrapper);
+        }
+        
+        /**
+         * Appends the initial AI welcome message.
+         */
+        function addInitialAiMessage() {
+            const messageWrapper = document.createElement('div');
+            messageWrapper.className = 'chat-message new-message-animation flex items-start gap-2 md:gap-3';
+            messageWrapper.innerHTML = `
+                <div class="flex-shrink-0 h-8 w-8 md:h-10 md:w-10 rounded-full bg-slate-200 flex items-center justify-center">
+                    <svg class="h-5 w-5 md:h-6 md:w-6 text-slate-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M12 21a9 9 0 100-18 9 9 0 000 18z" />
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 8.25L12 15.75l-3.75-7.5L12 3l3.75 5.25z" />
+                    </svg>
+                </div>
+                <div class="glass-effect-ai-bubble rounded-lg p-3 md:p-4 max-w-lg">
+                    <p class="text-sm md:text-base text-gray-900">Hello! I'm Voyager AI. How can I help you plan your trip today?</p>
+                </div>
+            `;
+            chatMessages.appendChild(messageWrapper);
+        }
+
+        /**
+         * Shows a typing indicator for the AI.
+         * @returns {HTMLElement} - The typing indicator element.
+         */
+        function showTypingIndicator() {
+            const indicatorWrapper = document.createElement('div');
+            indicatorWrapper.id = 'typing-indicator';
+            indicatorWrapper.className = 'chat-message new-message-animation flex items-start gap-2 md:gap-3';
+            indicatorWrapper.innerHTML = `
+                <div class="flex-shrink-0 h-8 w-8 md:h-10 md:w-10 rounded-full bg-slate-200 flex items-center justify-center">
+                    <svg class="h-5 w-5 md:h-6 md:w-6 text-slate-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 21a9 9 0 100-18 9 9 0 000 18z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 8.25L12 15.75l-3.75-7.5L12 3l3.75 5.25z" />
+                    </svg>
+                </div>
+                <div>
+                    <div class="glass-effect-ai-bubble rounded-lg p-3 md:p-4 inline-block">
+                        <div class="flex items-center justify-center space-x-1">
+                            <span class="h-2 w-2 bg-gray-600 rounded-full blinking-cursor" style="animation-delay: 0s;"></span>
+                            <span class="h-2 w-2 bg-gray-600 rounded-full blinking-cursor" style="animation-delay: 0.2s;"></span>
+                            <span class="h-2 w-2 bg-gray-600 rounded-full blinking-cursor" style="animation-delay: 0.4s;"></span>
+                        </div>
+                    </div>
+                    <p class="text-xs text-gray-700 mt-2 ml-1">Preparing recommendations...</p>
+                </div>
+            `;
+            chatMessages.appendChild(indicatorWrapper);
+            smartScroll(indicatorWrapper);
+            return indicatorWrapper;
+        }
+
+        /**
+         * Appends the AI's final response with the map widget.
+         */
+        function addAiResponse() {
+            const responseWrapper = document.createElement('div');
+            responseWrapper.className = 'chat-message new-message-animation flex items-start gap-2 md:gap-3';
+            
+            // Filter for restaurants with ID 0 through 5
+            const idFilteredRestaurants = restaurantData.filter(resto => resto.id >= 0 && resto.id <= 5);
+            displayedRestaurants = idFilteredRestaurants; // Update the global list for the map
+
+            let listHtml = '';
+            displayedRestaurants.forEach(resto => {
+                listHtml += `
+                    <div class="restaurant-item glass-effect rounded-lg p-3 md:p-4 cursor-pointer shadow-sm" data-id="${resto.id}">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <h3 class="text-base md:text-lg font-semibold text-gray-900">${resto.name}</h3>
+                                <p class="text-xs md:text-sm font-medium text-gray-800 mt-1">${resto.cuisine}</p>
+                            </div>
+                            <div class="expand-icon flex-shrink-0 text-gray-500">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                  <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="flex items-center mt-2 md:mt-3">
+                            ${createStarRating(resto.rating)}
+                            <span class="ml-2 text-xs md:text-sm text-gray-900 font-medium">${resto.rating.toFixed(1)}</span>
+                        </div>
+                        <p class="text-xs md:text-sm text-gray-800 mt-2">${resto.description}</p>
+                        <div class="restaurant-details">
+                            <div class="mt-4 pt-4 border-t border-gray-900/10">
+                                <h4 class="text-sm md:text-base font-semibold text-gray-900">Details</h4>
+                                <ul class="mt-2 text-xs md:text-sm text-gray-800 space-y-1">
+                                   <li><strong>Chef's Special:</strong> ${resto.details.special}</li>
+                                   <li><strong>Ambiance:</strong> ${resto.details.ambiance}</li>
+                                   <li><strong>Good for:</strong> ${resto.details.goodFor}</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            responseWrapper.innerHTML = `
+                <div class="flex-shrink-0 h-8 w-8 md:h-10 md:w-10 rounded-full bg-slate-200 flex items-center justify-center">
+                    <svg class="h-5 w-5 md:h-6 md:w-6 text-slate-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M12 21a9 9 0 100-18 9 9 0 000 18z" />
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 8.25L12 15.75l-3.75-7.5L12 3l3.75 5.25z" />
+                    </svg>
+                </div>
+                <div class="glass-effect-ai-bubble rounded-lg p-3 md:p-4 space-y-4 w-full max-w-4xl">
+                    <p class="text-sm md:text-base text-gray-900">Of course! Here are some restaurant recommendations for Singapore. Click the results for more details.</p>
+                    <div class="flex flex-col md:grid md:grid-cols-2 md:gap-4">
+                        <div class="md:hidden mb-4">
+                            <div id="map-mobile" class="h-[160px] rounded-lg"></div>
+                        </div>
+                        <div class="relative">
+                            <div id="restaurant-list-container" class="overflow-y-auto h-[400px] md:h-[500px] pr-2 space-y-3 md:space-y-4">${listHtml}</div>
+                        </div>
+                        <div class="hidden md:block" id="map-desktop"></div>
+                    </div>
+                </div>
+            `;
+            chatMessages.appendChild(responseWrapper);
+            
+            setTimeout(() => {
+                initializeMapAndInteractions();
+            }, 50);
+            
+            smartScroll(responseWrapper);
+        }
+
+        /**
+         * Initializes the Leaflet map and adds markers and hover events.
+         */
+        function initializeMapAndInteractions() {
+            const isMobile = window.innerWidth < 768;
+            const mapId = isMobile ? 'map-mobile' : 'map-desktop';
+            
+            // Initialize the map with attributionControl set to false
+            map = L.map(mapId, { attributionControl: false });
+
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager_labels_under/{z}/{x}/{y}{r}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+                subdomains: 'abcd',
+                maxZoom: 20
+            }).addTo(map);
+
+            const defaultIcon = L.icon({
+                iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-black.png',
+                iconSize: [25, 41],
+                iconAnchor: [12, 41],
+                popupAnchor: [1, -34],
+                shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+                shadowSize: [41, 41]
+            });
+
+            const highlightedIcon = L.icon({
+                iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
+                iconSize: [35, 57],
+                iconAnchor: [17, 57],
+                popupAnchor: [1, -44],
+                shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+                shadowSize: [57, 57]
+            });
+
+            const markerGroup = [];
+            displayedRestaurants.forEach(resto => { // Use the filtered list
+                const marker = L.marker([resto.lat, resto.lng], { icon: defaultIcon }).addTo(map)
+                    .bindPopup(`<b>${resto.name}</b><br>${resto.cuisine}`);
+                markers[resto.id] = marker;
+                markerGroup.push(marker);
+
+                marker.on('click', () => {
+                    const card = document.querySelector(`.restaurant-item[data-id="${resto.id}"]`);
+                    if (card) {
+                        card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        
+                        setTimeout(() => {
+                            if (!card.classList.contains('expanded')) {
+                                card.click();
+                            }
+                        }, 300);
+                    }
+                });
+            });
+            
+            const group = new L.featureGroup(markerGroup);
+            map.fitBounds(group.getBounds().pad(0.1));
+
+
+            document.querySelectorAll('.restaurant-item').forEach(item => {
+                const id = item.getAttribute('data-id');
+                const marker = markers[id];
+
+                item.addEventListener('mouseover', () => {
+                    if (marker) {
+                        marker.setIcon(highlightedIcon);
+                    }
+                });
+
+                item.addEventListener('mouseout', () => {
+                    if (marker) {
+                        marker.setIcon(defaultIcon);
+                    }
+                });
+
+                item.addEventListener('click', (e) => {
+                    const details = item.querySelector('.restaurant-details');
+                    const isExpanded = item.classList.contains('expanded');
+
+                    // Store the current scroll position
+                    const listContainer = document.getElementById('restaurant-list-container');
+                    const scrollPosition = listContainer.scrollTop;
+                    const itemTop = item.offsetTop;
+
+                    // Close any other open cards
+                    document.querySelectorAll('.restaurant-item.expanded').forEach(openItem => {
+                        if (openItem !== item) {
+                            openItem.classList.remove('expanded');
+                            openItem.querySelector('.restaurant-details').style.maxHeight = '0px';
+                        }
+                    });
+
+                    // Toggle the clicked card
+                    if (isExpanded) {
+                        item.classList.remove('expanded');
+                        details.style.maxHeight = '0px';
+                    } else {
+                        item.classList.add('expanded');
+                        details.style.maxHeight = details.scrollHeight + 'px';
+                        
+                        // After expanding, check if the top of the card has moved up.
+                        // If so, restore the scroll position to keep it in place.
+                        if (item.offsetTop < itemTop) {
+                            listContainer.scrollTop = scrollPosition;
+                        }
+
+                        // Check if the expanded content is out of view
+                        const listRect = listContainer.getBoundingClientRect();
+                        const itemRect = item.getBoundingClientRect();
+                        if (itemRect.bottom > listRect.bottom) {
+                            listContainer.scrollBy({ top: itemRect.bottom - listRect.bottom + 16, behavior: 'smooth' });
+                        }
+                    }
+                    
+                    if (marker) {
+                        map.panTo(marker.getLatLng());
+                        marker.openPopup();
+                    }
+                });
+            });
+        }
+
+        /**
+         * Generates the SVG icons for the star rating.
+         */
+        function createStarRating(rating) {
+            let starsHtml = '<div class="flex items-center">';
+            for (let i = 1; i <= 5; i++) {
+                if (i <= rating) {
+                    starsHtml += `<svg class="w-4 h-4 md:w-5 md:h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20"><path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z"/></svg>`;
+                } else if (i - 0.5 <= rating) {
+                    starsHtml += `<svg class="w-4 h-4 md:w-5 md:h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20"><path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0v15z"/></svg>`;
+                } else {
+                    starsHtml += `<svg class="w-4 h-4 md:w-5 md:h-5 text-gray-300" fill="currentColor" viewBox="0 0 20 20"><path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z"/></svg>`;
+                }
+            }
+            starsHtml += '</div>';
+            return starsHtml;
+        }
+
+        /**
+         * Main application logic to handle the chat flow.
+         */
+        function handleSend() {
+            const message = chatInput.value;
+            if (!message || message === '...') return;
+
+            addUserMessage(message);
+
+            chatInput.disabled = true;
+            sendButton.disabled = true;
+            chatInput.value = '...';
+            
+            setTimeout(() => {
+                const typingIndicator = showTypingIndicator();
+
+                setTimeout(() => {
+                    typingIndicator.remove();
+                    addAiResponse();
+                }, 1000); // Set delay to 1 second
+            }, 600); 
+        }
+
+        // --- Initial Load Animation ---
+        document.addEventListener('DOMContentLoaded', () => {
+             // --- Mobile Viewport Height Fix ---
+            function setChatContainerHeight() {
+                const isMobile = window.innerWidth < 768;
+                chatContainer.style.height = isMobile ? `${window.innerHeight}px` : '';
+            }
+            window.addEventListener('resize', setChatContainerHeight);
+            setChatContainerHeight();
+
+            // Fade in the main UI elements
+            setTimeout(() => {
+                chatHeader.classList.remove('opacity-0');
+                chatFooter.classList.remove('opacity-0');
+            }, 200);
+
+            // Add the initial AI message after a delay
+            setTimeout(() => {
+                addInitialAiMessage();
+            }, 600);
+
+            // Show "Click me!" bubble after 5 seconds of inactivity
+            const inactivityTimer = setTimeout(() => {
+                clickMeBubble.classList.remove('opacity-0');
+            }, 5000);
+
+            sendButton.addEventListener('click', () => {
+                clearTimeout(inactivityTimer);
+                clickMeBubble.classList.add('opacity-0'); // Hide the bubble
+                handleSend();
+            });
+
+            chatInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    clearTimeout(inactivityTimer);
+                    clickMeBubble.classList.add('opacity-0'); // Hide the bubble
+                    handleSend();
+                }
+            });
+        });
+
+    </script>
+</body>
+</html>
