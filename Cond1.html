@@ -134,6 +134,24 @@
             box-shadow: 0 0 0 2px black !important;
             transition: box-shadow 0.3s ease-in-out;
         }
+
+        /* --- Menu Modal Styles --- */
+        #menu-modal-overlay {
+            transition: opacity 0.3s ease-in-out;
+        }
+        #menu-modal-content {
+            transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
+        }
+        .recommendation-badge {
+            background-color: #000000; /* Black */
+            color: white;
+            font-size: 0.65rem;
+            padding: 2px 6px;
+            border-radius: 9999px;
+            font-weight: 600;
+            /* margin-left is now handled by utility classes */
+            line-height: 1;
+        }
     </style>
 </head>
 <body class="antialiased">
@@ -181,6 +199,22 @@
             </footer>
         </div>
     </div>
+    
+    <!-- Menu Modal -->
+    <div id="menu-modal-overlay" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 opacity-0 pointer-events-none">
+        <div id="menu-modal-content" class="bg-white rounded-xl shadow-2xl w-full max-w-md max-h-[80vh] flex flex-col transform scale-95 opacity-0">
+            <div class="flex justify-between items-center p-4 border-b">
+                <h2 id="menu-modal-title" class="text-xl font-bold font-playfair">Menu</h2>
+                <button id="menu-modal-close" class="text-gray-400 hover:text-gray-600">
+                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                </button>
+            </div>
+            <div id="menu-modal-body" class="p-6 overflow-y-auto">
+                <!-- Menu items will be injected here -->
+            </div>
+        </div>
+    </div>
+
 
     <script>
         // --- DOM Element References ---
@@ -191,42 +225,206 @@
         const chatInput = document.getElementById('chat-input');
         const sendButton = document.getElementById('send-button');
         const clickMeBubble = document.getElementById('click-me-bubble');
+        const menuModalOverlay = document.getElementById('menu-modal-overlay');
+        const menuModalContent = document.getElementById('menu-modal-content');
+        const menuModalTitle = document.getElementById('menu-modal-title');
+        const menuModalBody = document.getElementById('menu-modal-body');
+        const menuModalClose = document.getElementById('menu-modal-close');
+
 
         // --- Fictional Data with Coordinates Clustered in Downtown Singapore ---
         const restaurantData = [
             // Marina Bay / Downtown Core
             { id: 0, name: "Marina Bay Hawker Stall", cuisine: "Hawker", rating: 4.8, description: "Classic street food with a stunning waterfront view.", lat: 1.283, lng: 103.860, details: { special: "Chilli Crab", ambiance: "Bustling & Scenic", goodFor: "Tourists & Locals" } },
-            { id: 1, name: "Sentosa Seafood Grill", cuisine: "Seafood", rating: 4.7, description: "Freshly grilled seafood on the sandy shores of Sentosa.", lat: 1.255, lng: 103.823, details: { special: "Grilled Stingray", ambiance: "Beachfront & Casual", goodFor: "Families" } },
-            { id: 2, name: "Orchard Road Peranakan", cuisine: "Peranakan", rating: 4.6, description: "Authentic Straits Chinese cuisine in a modern setting.", lat: 1.304, lng: 103.831, details: { special: "Ayam Buah Keluak", ambiance: "Elegant & Modern", goodFor: "Cultural Dining" } },
-            { id: 3, name: "Clarke Quay Chili Crab", cuisine: "Seafood", rating: 4.9, description: "Famous for its award-winning chili crab.", lat: 1.291, lng: 103.846, details: { special: "Chilli Crab", ambiance: "Riverside & Lively", goodFor: "Groups" } },
-            { id: 4, name: "Tiong Bahru Mod-Sin", cuisine: "Modern Singaporean", rating: 4.5, description: "Innovative dishes that reinvent local flavors.", lat: 1.284, lng: 103.829, details: { special: "Laksa Risotto", ambiance: "Hip & Trendy", goodFor: "Foodies" } },
-            { id: 5, name: "Joo Chiat Laksa House", cuisine: "Local Delights", rating: 4.8, description: "A legendary spot for Katong-style laksa.", lat: 1.307, lng: 103.902, details: { special: "Katong Laksa", ambiance: "Old School & Authentic", goodFor: "Laksa Lovers" } },
-            
-            // Other restaurants
-            { id: 6, name: "Dempsey Hill Black Pepper Crab", cuisine: "Seafood", rating: 4.7, description: "A lush green escape with famous black pepper crab.", lat: 1.309, lng: 103.808, details: { special: "Black Pepper Crab", ambiance: "Lush & Colonial", goodFor: "Special Occasions" } },
-            { id: 7, name: "Maxwell Food Centre Chicken Rice", cuisine: "Hawker", rating: 4.9, description: "Arguably the best Hainanese chicken rice in Singapore.", lat: 1.280, lng: 103.844, details: { special: "Hainanese Chicken Rice", ambiance: "Bustling Hawker Centre", goodFor: "Authentic Street Food" } },
-            { id: 8, name: "Little India Biryani", cuisine: "Indian", rating: 4.6, description: "Aromatic and flavorful biryani in the heart of Little India.", lat: 1.308, lng: 103.852, details: { special: "Hyderabadi Dum Biryani", ambiance: "Vibrant & Cultural", goodFor: "Authentic Indian" } },
-            { id: 9, name: "Chinatown Satay Skewers", cuisine: "Hawker", rating: 4.5, description: "Perfectly grilled satay with a rich peanut sauce.", lat: 1.283, lng: 103.841, details: { special: "Mixed Satay Platter", ambiance: "Lively Street Food", goodFor: "Late Night Snacks" } },
-            { id: 10, name: "East Coast Lagoon Food Village", cuisine: "Hawker", rating: 4.7, description: "Seaside hawker centre famous for BBQ seafood.", lat: 1.302, lng: 103.931, details: { special: "BBQ Stingray & Satay", ambiance: "Seaside & Casual", goodFor: "Local Experience" } },
-            { id: 11, name: "Holland Village Fusion Bistro", cuisine: "Fusion", rating: 4.4, description: "A trendy spot with a mix of Western and Asian flavors.", lat: 1.311, lng: 103.795, details: { special: "Chilli Crab Pasta", ambiance: "Bohemian & Relaxed", goodFor: "Brunch & Drinks" } },
             { id: 12, name: "Gardens by the Bay Dining", cuisine: "International", rating: 4.6, description: "Dine amidst the spectacular Supertree Grove.", lat: 1.281, lng: 103.865, details: { special: "Pan-Seared Scallops", ambiance: "Futuristic & Scenic", goodFor: "Unique Views" } },
             { id: 13, name: "The Fullerton Bay Restaurant", cuisine: "Fine Dining", rating: 5.0, description: "Exquisite dining with panoramic views of Marina Bay.", lat: 1.285, lng: 103.854, details: { special: "Lobster Thermidor", ambiance: "Luxurious & Romantic", goodFor: "Anniversaries" } },
-            { id: 14, name: "Katong Antique House", cuisine: "Peranakan", rating: 4.7, description: "Authentic Peranakan food in a beautifully preserved shophouse.", lat: 1.306, lng: 103.905, details: { special: "Babi Pongteh", ambiance: "Historic & Charming", goodFor: "Cultural Immersion" } },
-            { id: 15, name: "Bugis Street Bites", cuisine: "Street Food", rating: 4.3, description: "A bustling market with a huge variety of cheap and delicious snacks.", lat: 1.301, lng: 103.856, details: { special: "Fried Carrot Cake", ambiance: "Bustling & Energetic", goodFor: "Shopping Break" } },
-            { id: 16, name: "Newton Food Centre", cuisine: "Hawker", rating: 4.5, description: "Featured in 'Crazy Rich Asians', famous for its seafood.", lat: 1.312, lng: 103.838, details: { special: "Oyster Omelette", ambiance: "Famous & Lively", goodFor: "Seafood Lovers" } },
-            { id: 17, name: "Geylang Serai Market", cuisine: "Malay", rating: 4.6, description: "A hub for traditional Malay and Indonesian cuisine.", lat: 1.316, lng: 103.892, details: { special: "Beef Rendang", ambiance: "Cultural & Authentic", goodFor: "Malay Food" } },
-            { id: 18, name: "Raffles Hotel Long Bar", cuisine: "Bar & Grill", rating: 4.8, description: "Home of the iconic Singapore Sling cocktail.", lat: 1.295, lng: 103.854, details: { special: "Singapore Sling", ambiance: "Colonial & Historic", goodFor: "Classic Cocktails" } },
-            { id: 19, name: "Esplanade Rooftop Bar", cuisine: "Bar", rating: 4.6, description: "Stunning views of the city skyline and Marina Bay Sands.", lat: 1.289, lng: 103.855, details: { special: "Craft Cocktails", ambiance: "Rooftop & Scenic", goodFor: "Evening Drinks" } },
             { id: 20, name: "Lau Pa Sat", cuisine: "Hawker", rating: 4.7, description: "Historic food centre in the heart of the financial district.", lat: 1.279, lng: 103.850, details: { special: "Satay Street (at night)", ambiance: "Historic & Bustling", goodFor: "Variety" } },
+
+            // Riverside (Clarke Quay / Boat Quay)
+            { id: 3, name: "Clarke Quay Chili Crab", cuisine: "Seafood", rating: 4.9, description: "Famous for its award-winning chili crab.", lat: 1.291, lng: 103.846, details: { special: "Chilli Crab", ambiance: "Riverside & Lively", goodFor: "Groups" } },
+            { id: 19, name: "Esplanade Rooftop Bar", cuisine: "Bar", rating: 4.6, description: "Stunning views of the city skyline and Marina Bay Sands.", lat: 1.289, lng: 103.855, details: { special: "Craft Cocktails", ambiance: "Rooftop & Scenic", goodFor: "Evening Drinks" } },
+            { id: 23, name: "Zion Riverside Food Centre", cuisine: "Hawker", rating: 4.6, description: "Popular for its prawn noodles and char kway teow.", lat: 1.295, lng: 103.832, details: { special: "Prawn Noodles", ambiance: "Riverside & Casual", goodFor: "Local Favorites" } },
+
+            // Orchard Road Area
+            { id: 2, name: "Orchard Road Peranakan", cuisine: "Peranakan", rating: 4.6, description: "Authentic Straits Chinese cuisine in a modern setting.", lat: 1.304, lng: 103.831, details: { special: "Ayam Buah Keluak", ambiance: "Elegant & Modern", goodFor: "Cultural Dining" } },
+            { id: 11, name: "Holland Village Fusion Bistro", cuisine: "Fusion", rating: 4.4, description: "A trendy spot with a mix of Western and Asian flavors.", lat: 1.311, lng: 103.795, details: { special: "Chilli Crab Pasta", ambiance: "Bohemian & Relaxed", goodFor: "Brunch & Drinks" } },
+            { id: 6, name: "Dempsey Hill Black Pepper Crab", cuisine: "Seafood", rating: 4.7, description: "A lush green escape with famous black pepper crab.", lat: 1.309, lng: 103.808, details: { special: "Black Pepper Crab", ambiance: "Lush & Colonial", goodFor: "Special Occasions" } },
+
+            // Chinatown / Tiong Bahru
+            { id: 7, name: "Maxwell Food Centre Chicken Rice", cuisine: "Hawker", rating: 4.9, description: "Arguably the best Hainanese chicken rice in Singapore.", lat: 1.280, lng: 103.844, details: { special: "Hainanese Chicken Rice", ambiance: "Bustling Hawker Centre", goodFor: "Authentic Street Food" } },
+            { id: 9, name: "Chinatown Satay Skewers", cuisine: "Hawker", rating: 4.5, description: "Perfectly grilled satay with a rich peanut sauce.", lat: 1.283, lng: 103.841, details: { special: "Mixed Satay Platter", ambiance: "Lively Street Food", goodFor: "Late Night Snacks" } },
+            { id: 4, name: "Tiong Bahru Mod-Sin", cuisine: "Modern Singaporean", rating: 4.5, description: "Innovative dishes that reinvent local flavors.", lat: 1.284, lng: 103.829, details: { special: "Laksa Risotto", ambiance: "Hip & Trendy", goodFor: "Foodies" } },
+
+            // Bugis / Little India
+            { id: 8, name: "Little India Biryani", cuisine: "Indian", rating: 4.6, description: "Aromatic and flavorful biryani in the heart of Little India.", lat: 1.308, lng: 103.852, details: { special: "Hyderabadi Dum Biryani", ambiance: "Vibrant & Cultural", goodFor: "Authentic Indian" } },
+            { id: 15, name: "Bugis Street Bites", cuisine: "Street Food", rating: 4.3, description: "A bustling market with a huge variety of cheap and delicious snacks.", lat: 1.301, lng: 103.856, details: { special: "Fried Carrot Cake", ambiance: "Bustling & Energetic", goodFor: "Shopping Break" } },
+            { id: 18, name: "Raffles Hotel Long Bar", cuisine: "Bar & Grill", rating: 4.8, description: "Home of the iconic Singapore Sling cocktail.", lat: 1.295, lng: 103.854, details: { special: "Singapore Sling", ambiance: "Colonial & Historic", goodFor: "Classic Cocktails" } },
             { id: 21, name: "Tekka Centre", cuisine: "Indian", rating: 4.4, description: "Vibrant market with authentic and affordable Indian food.", lat: 1.306, lng: 103.850, details: { special: "Thosai & Biryani", ambiance: "Vibrant & No-frills", goodFor: "Budget Indian Food" } },
+            
+            // East Coast / Katong / Geylang
+            { id: 5, name: "Joo Chiat Laksa House", cuisine: "Local Delights", rating: 4.8, description: "A legendary spot for Katong-style laksa.", lat: 1.307, lng: 103.902, details: { special: "Katong Laksa", ambiance: "Old School & Authentic", goodFor: "Laksa Lovers" } },
+            { id: 10, name: "East Coast Lagoon Food Village", cuisine: "Hawker", rating: 4.7, description: "Seaside hawker centre famous for BBQ seafood.", lat: 1.302, lng: 103.931, details: { special: "BBQ Stingray & Satay", ambiance: "Seaside & Casual", goodFor: "Local Experience" } },
+            { id: 14, name: "Katong Antique House", cuisine: "Peranakan", rating: 4.7, description: "Authentic Peranakan food in a beautifully preserved shophouse.", lat: 1.306, lng: 103.905, details: { special: "Babi Pongteh", ambiance: "Historic & Charming", goodFor: "Cultural Immersion" } },
+            { id: 17, name: "Geylang Serai Market", cuisine: "Malay", rating: 4.6, description: "A hub for traditional Malay and Indonesian cuisine.", lat: 1.316, lng: 103.892, details: { special: "Beef Rendang", ambiance: "Cultural & Authentic", goodFor: "Malay Food" } },
+
+            // North of Downtown
+            { id: 16, name: "Newton Food Centre", cuisine: "Hawker", rating: 4.5, description: "Featured in 'Crazy Rich Asians', famous for its seafood.", lat: 1.312, lng: 103.838, details: { special: "Oyster Omelette", ambiance: "Famous & Lively", goodFor: "Seafood Lovers" } },
             { id: 22, name: "Chomp Chomp Food Centre", cuisine: "Hawker", rating: 4.8, description: "Famous for BBQ seafood, satay, and sugar cane juice.", lat: 1.363, lng: 103.864, details: { special: "BBQ Stingray", ambiance: "Lively & Local", goodFor: "Supper" } },
-            { id: 23, name: "Zion Riverside Food Centre", cuisine: "Hawker", rating: 4.6, description: "Popular for its prawn noodles and char kway teow.", lat: 1.295, lng: 103.832, details: { special: "Prawn Noodles", ambiance: "Riverside & Casual", goodFor: "Local Favorites" } }
+
+            // South (Sentosa)
+            { id: 1, name: "Sentosa Seafood Grill", cuisine: "Seafood", rating: 4.7, description: "Freshly grilled seafood on the sandy shores of Sentosa.", lat: 1.255, lng: 103.823, details: { special: "Grilled Stingray", ambiance: "Beachfront & Casual", goodFor: "Families" } },
         ];
+        
+        const menuData = {
+            0: [ // Marina Bay Hawker Stall
+                { name: 'Hainanese Chicken Rice', price: '$5.50', description: 'Poached chicken served with seasoned rice and chili sauce.' },
+                { name: 'Chilli Crab (Small)', price: '$45.00', recommended: true, description: 'Mud crabs stir-fried in a sweet and savory tomato-based sauce.' },
+                { name: 'Laksa', price: '$6.00', description: 'Spicy noodle soup with coconut milk, shrimp, and fish cakes.' },
+                { name: 'Satay (10 sticks)', price: '$8.00', description: 'Grilled meat skewers served with a rich peanut sauce.' },
+            ],
+            1: [ // Sentosa Seafood Grill
+                { name: 'Grilled Stingray', price: '$18.00', recommended: true, description: 'Barbecued stingray smothered in spicy sambal sauce.' },
+                { name: 'Black Pepper Prawns', price: '$22.00', description: 'Fresh prawns stir-fried in a bold black pepper sauce.' },
+                { name: 'Garlic Butter Squid', price: '$16.00', description: 'Tender squid rings sautéed in aromatic garlic butter.' },
+                { name: 'Coconut Water', price: '$4.50', description: 'Freshly harvested from a young green coconut.' },
+            ],
+            2: [ // Orchard Road Peranakan
+                { name: 'Ayam Buah Keluak', price: '$24.00', recommended: true, description: 'A classic Peranakan dish of chicken stewed with Indonesian black nuts.' },
+                { name: 'Babi Pongteh', price: '$22.00', description: 'Nyonya-style braised pork belly with fermented soybeans.' },
+                { name: 'Nyonya Chap Chye', price: '$16.00', description: 'A mixed vegetable stew with glass noodles in a rich prawn broth.' },
+                { name: 'Chendol', price: '$7.00', description: 'A sweet dessert of pandan jelly, coconut milk, and palm sugar.' },
+            ],
+            3: [ // Clarke Quay Chili Crab
+                { name: 'Award-Winning Chilli Crab (Medium)', price: '$88.00', recommended: true, description: 'Our signature dish, perfect for sharing.' },
+                { name: 'Black Pepper Crab (Medium)', price: '$88.00', description: 'A fiery and aromatic alternative to our classic chilli crab.' },
+                { name: 'Cereal Prawns', price: '$28.00', recommended: true, description: 'Crispy prawns coated in a sweet and savory cereal mix.' },
+                { name: 'Fried Man Tou (6 pcs)', price: '$6.00', description: 'Deep-fried buns, perfect for dipping in crab sauce.' },
+            ],
+            4: [ // Tiong Bahru Mod-Sin
+                { name: 'Laksa Risotto with Prawns', price: '$26.00', recommended: true, description: 'An Italian classic with a Singaporean twist, creamy and spicy.' },
+                { name: 'Buah Keluak Pasta', price: '$24.00', description: 'Spaghetti tossed in a rich, earthy black nut pesto.' },
+                { name: 'Pandan Soufflé', price: '$14.00', description: 'A light and airy dessert with the fragrant essence of pandan.' },
+                { name: 'Craft G&T', price: '$18.00', description: 'Gin and tonic featuring local botanicals and herbs.' },
+            ],
+            5: [ // Joo Chiat Laksa House
+                { name: 'Katong Laksa', price: '$7.00', recommended: true, description: 'The famous rich, coconut-based curry soup with thick vermicelli.' },
+                { name: 'Otah-Otah (3 pcs)', price: '$4.50', description: 'Grilled fish cake mixed with spices, wrapped in a banana leaf.' },
+                { name: 'Nasi Lemak', price: '$8.00', description: 'Coconut rice served with fried chicken, sambal, and anchovies.' },
+                { name: 'Lime Juice', price: '$2.50', description: 'Freshly squeezed and refreshingly tart.' },
+            ],
+            6: [ // Dempsey Hill Black Pepper Crab
+                { name: 'Signature Black Pepper Crab (Medium)', price: '$90.00', recommended: true, description: 'Stir-fried crab with a robust, peppery sauce.' },
+                { name: 'Golden Salted Egg Yolk Prawns', price: '$30.00', description: 'Crispy prawns coated in a rich salted egg yolk sauce.' },
+                { name: 'Scallop & Asparagus in XO Sauce', price: '$28.00', description: 'A premium seafood stir-fry with a spicy kick.' },
+                { name: 'Chilled Mango Sago', price: '$9.00', description: 'A refreshing dessert of mango, sago pearls, and coconut milk.' },
+            ],
+            7: [ // Maxwell Food Centre
+                { name: 'Tian Tian Hainanese Chicken Rice', price: '$5.00', recommended: true, description: 'World-renowned poached chicken with fragrant rice.' },
+                { name: 'Zhen Zhen Porridge', price: '$4.00', description: 'Silky smooth rice porridge with various toppings.' },
+                { name: 'Rojak, Popiah & Cockle', price: '$4.50', description: 'A traditional fruit and vegetable salad with a sweet and savory sauce.' },
+                { name: 'Maxwell Fuzhou Oyster Cake', price: '$2.50', description: 'A savory deep-fried UFO-shaped fritter with oysters.' },
+            ],
+            8: [ // Little India Biryani
+                { name: 'Hyderabadi Dum Biryani (Mutton)', price: '$14.00', recommended: true, description: 'Aromatic basmati rice and tender mutton cooked in a sealed pot.' },
+                { name: 'Chicken Tikka Masala', price: '$12.00', description: 'Grilled chicken chunks in a creamy, spiced tomato sauce.' },
+                { name: 'Palak Paneer', price: '$10.00', description: 'Indian cheese cubes in a smooth spinach gravy.' },
+                { name: 'Garlic Naan', price: '$3.50', description: 'Soft, leavened flatbread with garlic and butter.' },
+            ],
+            9: [ // Chinatown Satay Skewers
+                { name: 'Mixed Satay Platter (20 sticks)', price: '$15.00', recommended: true, description: 'A mix of chicken, beef, and mutton skewers.' },
+                { name: 'BBQ Chicken Wings (3 pcs)', price: '$4.50', description: 'Smoky and perfectly charred chicken wings.' },
+                { name: 'Hokkien Mee', price: '$6.00', description: 'Stir-fried noodle dish with prawns and squid in a rich broth.' },
+                { name: 'Sugar Cane Tower', price: '$8.00', description: 'A tall, refreshing tower of freshly pressed sugarcane juice.' },
+            ],
+            10: [ // East Coast Lagoon Food Village
+                { name: 'BBQ Sambal Stingray', price: '$16.00', recommended: true, description: 'Stingray grilled on a banana leaf with spicy sambal paste.' },
+                { name: 'Oyster Omelette (Orh Luak)', price: '$8.00', description: 'A savory omelette with fresh oysters, fried to perfection.' },
+                { name: 'Chicken Satay (10 sticks)', price: '$8.00', description: 'Char-grilled chicken skewers with peanut sauce.' },
+                { name: 'Fresh Sugarcane Juice', price: '$2.50', description: 'The perfect drink to cool down by the sea.' },
+            ],
+            11: [ // Holland Village Fusion Bistro
+                { name: 'Chilli Crab Pasta', price: '$25.00', recommended: true, description: 'Spaghetti with a generous serving of Singaporean chilli crab sauce.' },
+                { name: 'Truffle Fries', price: '$12.00', description: 'Crispy fries tossed in truffle oil and parmesan cheese.' },
+                { name: 'Wagyu Beef Sliders', price: '$18.00', description: 'Three mini burgers with premium wagyu beef patties.' },
+                { name: 'Lychee Martini', price: '$16.00', description: 'A sweet and refreshing cocktail with lychee fruit.' },
+            ],
+            12: [ // Gardens by the Bay Dining
+                { name: 'Pan-Seared Scallops', price: '$32.00', recommended: true, description: 'Served with asparagus puree and a citrus vinaigrette.' },
+                { name: 'Mushroom Risotto', price: '$26.00', description: 'Creamy Arborio rice with wild mushrooms and truffle oil.' },
+                { name: 'Floral Infusion Tea', price: '$9.00', description: 'A fragrant tea blend inspired by the gardens.' },
+                { name: 'Chocolate Lava Cake', price: '$15.00', description: 'Warm chocolate cake with a molten center, served with ice cream.' },
+            ],
+            13: [ // The Fullerton Bay Restaurant
+                { name: 'Lobster Thermidor', price: '$128.00', recommended: true, description: 'A classic French dish of creamy lobster meat baked in its shell.' },
+                { name: 'Wagyu Tomahawk Steak', price: '$180.00', description: 'A large, bone-in ribeye steak, perfect for sharing.' },
+                { name: 'Seafood Platter for Two', price: '$150.00', description: 'An assortment of fresh oysters, prawns, crab, and lobster.' },
+                { name: 'Vintage Champagne (Glass)', price: '$45.00', description: 'A glass of our finest selection of vintage champagne.' },
+            ],
+            14: [ // Katong Antique House
+                { name: 'Babi Pongteh (Pork Stew)', price: '$20.00', recommended: true, description: 'A savory Nyonya pork stew with fermented soybeans and bamboo shoots.' },
+                { name: 'Ayam Buah Keluak (Chicken)', price: '$22.00', description: 'A rich and tangy chicken stew with the unique Indonesian black nut.' },
+                { name: 'Nyonya Kueh Platter', price: '$10.00', description: 'A colorful assortment of traditional Peranakan sweets.' },
+                { name: 'Homemade Barley Drink', price: '$4.00', description: 'A comforting and lightly sweetened barley drink.' },
+            ],
+            15: [ // Bugis Street Bites
+                { name: 'Fried Carrot Cake (Chai Tow Kway)', price: '$4.00', recommended: true, description: 'A savory stir-fried radish cake, available in black (sweet) or white.' },
+                { name: 'Taiwanese Crispy Chicken', price: '$5.00', description: 'Bite-sized pieces of chicken, deep-fried and seasoned.' },
+                { name: 'Bubble Tea', price: '$3.50', description: 'The classic Taiwanese milk tea with tapioca pearls.' },
+                { name: 'Curry Fish Balls', price: '$3.00', description: 'Fish balls simmered in a mild curry sauce.' },
+            ],
+            16: [ // Newton Food Centre
+                { name: 'Oyster Omelette', price: '$8.00', recommended: true, description: 'A starchy, savory omelette filled with fresh, plump oysters.' },
+                { name: 'Grilled Sambal Stingray', price: '$15.00', description: 'Stingray barbecued on a banana leaf with spicy sambal.' },
+                { name: 'Hokkien Mee', price: '$6.00', description: 'A flavorful dish of stir-fried noodles with seafood.' },
+                { name: 'Tiger Beer (Bucket)', price: '$30.00', description: 'A bucket of Singapore\'s iconic local beer.' },
+            ],
+            17: [ // Geylang Serai Market
+                { name: 'Beef Rendang with Nasi Lemak', price: '$8.50', recommended: true, description: 'Slow-cooked spicy beef curry served with coconut rice.' },
+                { name: 'Mee Rebus', price: '$4.00', description: 'A sweet and spicy noodle dish with a thick gravy.' },
+                { name: 'Assorted Malay Kueh', price: '$3.00', description: 'A selection of traditional Malay cakes and sweets.' },
+                { name: 'Bandung Drink', price: '$2.00', description: 'A sweet, rose syrup-flavored milk drink.' },
+            ],
+            18: [ // Raffles Hotel Long Bar
+                { name: 'Singapore Sling', price: '$37.00', recommended: true, description: 'The original recipe of the world-famous gin-based cocktail.' },
+                { name: 'Satay Skewers', price: '$25.00', description: 'An elevated version of the classic street food.' },
+                { name: 'Wagyu Beef Sliders', price: '$30.00', description: 'Gourmet mini burgers in a historic setting.' },
+                { name: 'Bowl of Peanuts', price: '$0.00', description: 'Complimentary peanuts, feel free to throw the shells on the floor!' },
+            ],
+            19: [ // Esplanade Rooftop Bar
+                { name: 'Merlion Spritz Cocktail', price: '$22.00', recommended: true, description: 'A refreshing local take on the classic spritz.' },
+                { name: 'Truffle Fries with Parmesan', price: '$15.00', description: 'A perfect snack to accompany your drinks and the view.' },
+                { name: 'Mini Crab Cakes', price: '$18.00', description: 'Bite-sized crab cakes with a zesty dipping sauce.' },
+                { name: 'Local Craft Beer', price: '$14.00', description: 'A selection of beers from Singaporean craft breweries.' },
+            ],
+            20: [ // Lau Pa Sat
+                { name: 'Satay Street Platter (Chicken, Beef, Mutton)', price: '$20.00', recommended: true, description: 'A large platter from the famous open-air satay street.' },
+                { name: 'Carrot Cake (Black)', price: '$5.00', description: 'Stir-fried radish cake with a sweet dark soy sauce.' },
+                { name: 'Murtabak (Mutton)', price: '$8.00', description: 'A stuffed pancake filled with minced mutton and spices.' },
+                { name: 'Sugarcane Juice', price: '$3.00', description: 'Freshly squeezed and served chilled.' },
+            ],
+            21: [ // Tekka Centre
+                { name: 'Chicken Dum Biryani', price: '$7.50', recommended: true, description: 'A flavorful rice and chicken dish cooked in a sealed pot.' },
+                { name: 'Masala Thosai', price: '$3.00', description: 'A crispy fermented crepe stuffed with spiced potatoes.' },
+                { name: 'Roti Prata with Curry', price: '$2.50', description: 'A flaky, pan-fried flatbread served with curry.' },
+                { name: 'Teh Tarik', price: '$1.50', description: 'A sweet, frothy "pulled" milk tea.' },
+            ],
+            22: [ // Chomp Chomp Food Centre
+                { name: 'Sambal Stingray', price: '$14.00', recommended: true, description: 'A local favorite, grilled stingray with spicy sambal.' },
+                { name: 'Hokkien Mee', price: '$5.00', description: 'A rich noodle dish stir-fried with seafood and pork.' },
+                { name: 'Chicken Wings (4 pcs)', price: '$6.00', description: 'Crispy, smoky barbecued chicken wings.' },
+                { name: 'Large Sugarcane Juice', price: '$4.00', description: 'A jumbo-sized cup of refreshing sugarcane juice.' },
+            ],
+            23: [ // Zion Riverside Food Centre
+                { name: 'No. 18 Zion Road Fried Kway Teow', price: '$6.00', recommended: true, description: 'A famous stall for stir-fried rice noodles with a smoky flavor.' },
+                { name: 'Zion Road Big Prawn Noodle', price: '$8.00', description: 'A rich and flavorful noodle soup with large, fresh prawns.' },
+                { name: 'Ah Wang La Mian Xiao Long Bao', price: '$7.00', description: 'Hand-pulled noodles and delicate soup dumplings.' },
+                { name: 'Soursop Juice', price: '$3.00', description: 'A sweet and tangy tropical fruit juice.' },
+            ]
+        };
 
 
         let map;
         let markers = {};
-        let displayedRestaurants = []; // Holds the currently displayed restaurants
 
         /**
          * Scrolls the chat window to bring the new element into view if it's not visible.
@@ -324,28 +522,28 @@
             const responseWrapper = document.createElement('div');
             responseWrapper.className = 'chat-message new-message-animation flex items-start gap-2 md:gap-3';
             
-            // Filter for restaurants with ID 0 through 5
-            const idFilteredRestaurants = restaurantData.filter(resto => resto.id >= 0 && resto.id <= 5);
-            displayedRestaurants = idFilteredRestaurants; // Update the global list for the map
-
             let listHtml = '';
-            displayedRestaurants.forEach(resto => {
+            // Filter and sort the data
+            const displayData = restaurantData.filter(r => r.id <= 5).sort((a, b) => a.id - b.id);
+
+            displayData.forEach(resto => {
                 listHtml += `
                     <div class="restaurant-item glass-effect rounded-lg p-3 md:p-4 cursor-pointer shadow-sm" data-id="${resto.id}">
                         <div class="flex justify-between items-start">
-                            <div>
+                            <div class="flex-1">
                                 <h3 class="text-base md:text-lg font-semibold text-gray-900">${resto.name}</h3>
                                 <p class="text-xs md:text-sm font-medium text-gray-800 mt-1">${resto.cuisine}</p>
                             </div>
-                            <div class="expand-icon flex-shrink-0 text-gray-500">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                  <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
-                                </svg>
-                            </div>
+                            <button class="show-menu-btn text-xs bg-gray-800 text-white py-1 px-3 rounded-full hover:bg-gray-700 transition-colors whitespace-nowrap ml-4" data-id="${resto.id}">Menu Highlights</button>
                         </div>
                         <div class="flex items-center mt-2 md:mt-3">
                             ${createStarRating(resto.rating)}
                             <span class="ml-2 text-xs md:text-sm text-gray-900 font-medium">${resto.rating.toFixed(1)}</span>
+                             <div class="expand-icon flex-shrink-0 text-gray-500 ml-auto">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                  <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                                </svg>
+                            </div>
                         </div>
                         <p class="text-xs md:text-sm text-gray-800 mt-2">${resto.description}</p>
                         <div class="restaurant-details">
@@ -411,6 +609,9 @@
             const mapId = isMobile ? 'map-mobile' : 'map-desktop';
             
             // Initialize the map with attributionControl set to false
+            if(map) {
+                map.remove();
+            }
             map = L.map(mapId, { attributionControl: false });
 
             L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager_labels_under/{z}/{x}/{y}{r}.png', {
@@ -438,7 +639,7 @@
             });
 
             const markerGroup = [];
-            displayedRestaurants.forEach(resto => { // Use the filtered list
+            restaurantData.filter(r => r.id <= 5).forEach(resto => {
                 const marker = L.marker([resto.lat, resto.lng], { icon: defaultIcon }).addTo(map)
                     .bindPopup(`<b>${resto.name}</b><br>${resto.cuisine}`);
                 markers[resto.id] = marker;
@@ -479,10 +680,15 @@
                 });
 
                 item.addEventListener('click', (e) => {
+                    // If the click is on the menu button, open the menu and stop.
+                    if (e.target.closest('.show-menu-btn')) {
+                        openMenuModal(id);
+                        return;
+                    }
+
+                    // Otherwise, toggle the details section.
                     const details = item.querySelector('.restaurant-details');
                     const isExpanded = item.classList.contains('expanded');
-
-                    // Store the current scroll position
                     const listContainer = document.getElementById('restaurant-list-container');
                     const scrollPosition = listContainer.scrollTop;
                     const itemTop = item.offsetTop;
@@ -503,13 +709,10 @@
                         item.classList.add('expanded');
                         details.style.maxHeight = details.scrollHeight + 'px';
                         
-                        // After expanding, check if the top of the card has moved up.
-                        // If so, restore the scroll position to keep it in place.
                         if (item.offsetTop < itemTop) {
                             listContainer.scrollTop = scrollPosition;
                         }
 
-                        // Check if the expanded content is out of view
                         const listRect = listContainer.getBoundingClientRect();
                         const itemRect = item.getBoundingClientRect();
                         if (itemRect.bottom > listRect.bottom) {
@@ -524,6 +727,44 @@
                 });
             });
         }
+        
+        /**
+         * Opens the menu modal and populates it with data.
+         * @param {string} restaurantId - The ID of the restaurant.
+         */
+        function openMenuModal(restaurantId) {
+            const restaurant = restaurantData.find(r => r.id == restaurantId);
+            const menu = menuData[restaurantId] || menuData.default;
+
+            if (!restaurant) return;
+
+            menuModalTitle.textContent = `Menu Highlights for ${restaurant.name}`;
+            
+            let menuHtml = '<ul class="space-y-4">';
+            menu.forEach(item => {
+                menuHtml += `
+                    <li class="pb-2 border-b border-gray-100">
+                        <div class="flex justify-between items-start">
+                            <p class="font-semibold text-gray-800">${item.name}</p>
+                            <span class="text-gray-600 font-medium flex-shrink-0 ml-4">${item.price}</span>
+                        </div>
+                        <p class="text-sm text-gray-500 mt-1">${item.description}</p>
+                        ${item.recommended ? '<div class="mt-2"><span class="recommendation-badge">Recommended by Voyager AI</span></div>' : ''}
+                    </li>
+                `;
+            });
+            menuHtml += '</ul>';
+            menuModalBody.innerHTML = menuHtml;
+
+            menuModalOverlay.classList.remove('opacity-0', 'pointer-events-none');
+            menuModalContent.classList.remove('scale-95', 'opacity-0');
+        }
+
+        function closeMenuModal() {
+            menuModalOverlay.classList.add('opacity-0', 'pointer-events-none');
+            menuModalContent.classList.add('scale-95', 'opacity-0');
+        }
+
 
         /**
          * Generates the SVG icons for the star rating.
@@ -566,7 +807,7 @@
             }, 600); 
         }
 
-        // --- Initial Load Animation ---
+        // --- Initial Load Animation & Event Listeners ---
         document.addEventListener('DOMContentLoaded', () => {
              // --- Mobile Viewport Height Fix ---
             function setChatContainerHeight() {
@@ -603,6 +844,14 @@
                     clearTimeout(inactivityTimer);
                     clickMeBubble.classList.add('opacity-0'); // Hide the bubble
                     handleSend();
+                }
+            });
+            
+            // Menu Modal Listeners
+            menuModalClose.addEventListener('click', closeMenuModal);
+            menuModalOverlay.addEventListener('click', (e) => {
+                if (e.target === menuModalOverlay) {
+                    closeMenuModal();
                 }
             });
         });
